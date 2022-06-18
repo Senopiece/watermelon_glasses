@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:watermelon_glasses/views/bluetooth_page_root.dart';
+import 'package:watermelon_glasses/views/main_page.dart';
 import 'package:watermelon_glasses/views/manual_page_root.dart';
 import 'package:watermelon_glasses/views/settings_page_root.dart';
 import 'package:watermelon_glasses/views/timer_page_root.dart';
@@ -27,4 +28,9 @@ final settingsPage = GetPage(
   name: '/settings',
   page: () => const SettingsPageRoot(),
   binding: BindingsBuilder(() {}),
+);
+
+final mainPage = GetPage(
+  name: '/main',
+  page: () =>  MyHomePage(),
 );

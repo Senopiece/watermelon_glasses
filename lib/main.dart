@@ -25,9 +25,9 @@ class WatermelonGlasses extends StatelessWidget {
       locale: Get.deviceLocale,
       fallbackLocale: const Locale('en', 'US'),
       initialBinding: ServicesBinding(),
-      initialRoute: timerPage.name,
+      initialRoute: mainPage.name,
       getPages: [
-        timerPage,
+        mainPage,
       ],
     );
   }
