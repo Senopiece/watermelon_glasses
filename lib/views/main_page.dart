@@ -1,9 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:watermelon_glasses/views/bluetooth_page_root.dart';
 import 'package:watermelon_glasses/views/manual_page_root.dart';
 import 'package:watermelon_glasses/views/timer_page_root.dart';
 import 'package:watermelon_glasses/views/settings_page_root.dart';
+import 'package:intl/intl.dart';
+
 
 class MyHomePage extends StatefulWidget {
 
@@ -25,10 +26,11 @@ class MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     int selectedIndex = 0;
     DateTime now = DateTime.now();
+    String formattedDate = DateFormat('kk:mm').format(now);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.green,
-        title: Text("$now"),
+        title: Text(formattedDate,style: const TextStyle(fontSize: 30)),
       ),
       body:  getBody(),
       bottomNavigationBar: BottomNavigationBar(
