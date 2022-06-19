@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:settings_ui/settings_ui.dart';
 
 class SettingsPageRoot extends StatelessWidget {
-  final bool isSwitched = false;
-
   const SettingsPageRoot({Key? key}) : super(key: key);
 
   @override
