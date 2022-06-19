@@ -5,7 +5,9 @@ import 'package:get/get.dart';
 
 class Device extends GetxService {
   BluetoothConnection? connection;
+  bool connecting = false;
   bool isManualMode = false;
+  String selected = "";
 
   Future<void> sendRaw(String data) async {
     connection!.output.add(Uint8List.fromList(data.codeUnits));
@@ -13,16 +15,21 @@ class Device extends GetxService {
   }
 
   void setupDevice(String address) {
-    connection = null;
-    Future(() async {
-      connection = await BluetoothConnection.toAddress(address);
-      isManualMode = false;
+    if (!connecting) {
+      connecting = true;
+      connection = null;
+      Future(() async {
+        connection = await BluetoothConnection.toAddress(address);
+        isManualMode = false;
+        selected = address;
 
-      // connection!.input?.listen((Uint8List data) {
-      //   //Data entry point
-      //   print(ascii.decode(data));
-      // });
-    });
+        // connection!.input?.listen((Uint8List data) {
+        //   //Data entry point
+        //   print(ascii.decode(data));
+        // });
+        connecting = false;
+      });
+    }
   }
 
   Future<void> enterManualMode() async {

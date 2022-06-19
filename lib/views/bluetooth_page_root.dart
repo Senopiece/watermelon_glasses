@@ -1,49 +1,56 @@
 import 'package:flutter/material.dart';
-
-import '../datatypes/device.dart';
-import '../datatypes/bluetooth.dart';
+import 'package:get/get.dart';
+import 'package:watermelon_glasses/controllers/bluetooth_page_controller.dart';
+import 'package:watermelon_glasses/services/device.dart';
 
 class BluetoothPageRoot extends StatelessWidget {
+  final controller = Get.put(BluetoothPageController());
+  final device = Get.find<Device>();
   BluetoothPageRoot({Key? key}) : super(key: key);
-  final _bluetoothDevices = [
-    Device(name: 'device1', id: '0', bluetooth: Bluetooth()),
-    Device(name: 'device2', id: '1', bluetooth: Bluetooth()),
-    Device(name: 'device3', id: '2', bluetooth: Bluetooth()),
-    Device(name: 'device4', id: '3', bluetooth: Bluetooth()),
-  ];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: ListView.separated(
-        itemCount: _bluetoothDevices.length,
-        itemBuilder: (context, index) {
-          return Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(10),
-            margin: EdgeInsets.only(top: 10),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Colors.black,
+    return GetBuilder<BluetoothPageController>(
+      builder: (controller) => Scaffold(
+        body: ListView.separated(
+          itemCount: controller.results.length,
+          itemBuilder: (context, index) {
+            return ElevatedButton(
+              onPressed: () =>
+                  device.setupDevice(controller.results[index].device.address),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(10),
+                margin: const EdgeInsets.only(top: 10),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.black,
+                  ),
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                  color: controller.results[index].device.address ==
+                          device.selected
+                      ? Colors.amber
+                      : Colors.white,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                        'Device Name: ${controller.results[index].device.name}',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        )),
+                    Text(
+                        'Address: ${controller.results[index].device.address}'),
+                  ],
+                ),
               ),
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Device Name: ${_bluetoothDevices[index].name}',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    )),
-                Text(
-                    'Bluetooth Name: ${_bluetoothDevices[index].bluetooth.name}'),
-              ],
-            ),
-          );
-        },
-        separatorBuilder: (context, int index) => Divider(
-          height: 10,
+            );
+          },
+          separatorBuilder: (context, int index) => const Divider(
+            height: 10,
+          ),
         ),
       ),
     );
