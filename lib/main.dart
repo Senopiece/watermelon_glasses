@@ -10,15 +10,15 @@ void main() {
   flutter_services.SystemChrome.setPreferredOrientations([
     flutter_services.DeviceOrientation.portraitUp,
   ]);
-  runApp(WatermelonGlasses());
+  runApp(const WatermelonGlasses());
 }
 
 class WatermelonGlasses extends StatelessWidget {
-   const WatermelonGlasses({Key? key}) : super(key: key);
+  const WatermelonGlasses({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-      return GetMaterialApp(
+    return GetMaterialApp(
       title: 'Watermelon Glasses',
       translations: AppLocalization(),
       darkTheme: ThemeData.light(),
@@ -33,5 +33,3 @@ class WatermelonGlasses extends StatelessWidget {
     );
   }
 }
-
-
