@@ -1,9 +1,10 @@
 import 'package:get/get.dart';
-import 'package:watermelon_glasses/controllers/bluetooth_page_controller.dart';
+
+import 'device.dart';
 
 class ServicesBinding extends Bindings {
   @override
   void dependencies() {
-    Get.put(BluetoothPageController());
+    Get.put(Device());
   }
 }
