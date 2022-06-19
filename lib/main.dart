@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' as flutter_services;
 import 'package:get/get.dart';
 
-import 'pages/device_lookup.dart';
+import 'pages/pages.dart';
 import 'services/binding.dart';
 import 'translations/localization.dart';
 
@@ -25,9 +25,9 @@ class WatermelonGlasses extends StatelessWidget {
       locale: Get.deviceLocale,
       fallbackLocale: const Locale('en', 'US'),
       initialBinding: ServicesBinding(),
-      initialRoute: deviceLookupPage.name,
+      initialRoute: mainPage.name,
       getPages: [
-        deviceLookupPage,
+        mainPage,
       ],
     );
   }
