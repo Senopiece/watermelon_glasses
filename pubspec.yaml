@@ -14,12 +14,23 @@ dependencies:
 
   cupertino_icons: ^1.0.2
   get: ^4.6.5
+  intl: ^0.17.0
+  flutter_bluetooth_serial: ^0.4.0
+  settings_ui: ^2.0.2
+  shared_preferences: ^2.0.15
+  provider: ^6.0.3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.9.3
 
   flutter_lints: ^2.0.0
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/icon.jpg"
 
 flutter:
   uses-material-design: true
