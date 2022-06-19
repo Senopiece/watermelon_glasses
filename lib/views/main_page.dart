@@ -17,10 +17,10 @@ class MyHomePage extends StatefulWidget {
 
 class MyHomePageState extends State<MyHomePage> {
   int selectedIndex = 0;
-  Widget _timer = TimerPageRoot();
-  Widget _manual = ManualPageRoot();
-  Widget _bluetooth = BluetoothPageRoot();
-  Widget _settings = SettingsPageRoot();
+  final Widget _timer = const TimerPageRoot();
+  final Widget _manual = const ManualPageRoot();
+  final Widget _bluetooth = const BluetoothPageRoot();
+  final Widget _settings = SettingsPageRoot();
 
   @override
   Widget build(BuildContext context) {
@@ -82,5 +82,7 @@ class MyHomePageState extends State<MyHomePage> {
     });
   }
 }
+
+
 
 
