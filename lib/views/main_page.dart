@@ -6,6 +6,8 @@ import 'package:watermelon_glasses/views/settings_page_root.dart';
 import 'package:intl/intl.dart';
 
 class MyHomePage extends StatefulWidget {
+  MyHomePage({Key? key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() {
     return MyHomePageState();
