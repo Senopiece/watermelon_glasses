@@ -18,33 +18,16 @@ class BluetoothPageRoot extends StatelessWidget {
             return ElevatedButton(
               onPressed: () =>
                   device.setupDevice(controller.results[index].device.address),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(10),
-                margin: const EdgeInsets.only(top: 10),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Colors.black,
-                  ),
-                  borderRadius: const BorderRadius.all(Radius.circular(10)),
-                  color: controller.results[index].device.address ==
-                          device.selected
-                      ? Colors.amber
-                      : Colors.white,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                        'Device Name: ${controller.results[index].device.name}',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        )),
-                    Text(
-                        'Address: ${controller.results[index].device.address}'),
-                  ],
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Device Name: ${controller.results[index].device.name}',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      )),
+                  Text('Address: ${controller.results[index].device.address}'),
+                ],
               ),
             );
           },
