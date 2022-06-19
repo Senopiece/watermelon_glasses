@@ -5,21 +5,18 @@ import 'package:watermelon_glasses/views/timer_page_root.dart';
 import 'package:watermelon_glasses/views/settings_page_root.dart';
 import 'package:intl/intl.dart';
 
-
 class MyHomePage extends StatefulWidget {
-
   @override
   State<StatefulWidget> createState() {
     return MyHomePageState();
   }
-
 }
 
 class MyHomePageState extends State<MyHomePage> {
   int selectedIndex = 0;
   final Widget _timer = const TimerPageRoot();
   final Widget _manual = const ManualPageRoot();
-  final Widget _bluetooth = const BluetoothPageRoot();
+  final Widget _bluetooth = BluetoothPageRoot();
   final Widget _settings = SettingsPageRoot();
 
   @override
@@ -30,9 +27,9 @@ class MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.green,
-        title: Text(formattedDate,style: const TextStyle(fontSize: 30)),
+        title: Text(formattedDate, style: const TextStyle(fontSize: 30)),
       ),
-      body:  getBody(),
+      body: getBody(),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: selectedIndex,
         items: const [
@@ -44,26 +41,23 @@ class MyHomePageState extends State<MyHomePage> {
           BottomNavigationBarItem(
               icon: Icon(Icons.back_hand),
               label: 'Manual',
-              backgroundColor: Colors.green
-          ),
+              backgroundColor: Colors.green),
           BottomNavigationBarItem(
               icon: Icon(Icons.bluetooth),
               label: 'Bluetooth',
-              backgroundColor: Colors.green
-          ),
+              backgroundColor: Colors.green),
           BottomNavigationBarItem(
               icon: Icon(Icons.settings),
               label: 'Settings',
-              backgroundColor: Colors.green
-          ),
+              backgroundColor: Colors.green),
         ],
         onTap: onTapHandler,
       ),
     );
   }
 
-  Widget getBody( )  {
-    switch(selectedIndex) {
+  Widget getBody() {
+    switch (selectedIndex) {
       case 0:
         return _timer;
       case 1:
@@ -72,17 +66,12 @@ class MyHomePageState extends State<MyHomePage> {
         return _bluetooth;
       default:
         return _settings;
-
     }
   }
 
-  void onTapHandler(int index)  {
+  void onTapHandler(int index) {
     setState(() {
       selectedIndex = index;
     });
   }
 }
-
-
-
-
