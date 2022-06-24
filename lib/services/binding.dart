@@ -1,10 +1,10 @@
 import 'package:get/get.dart';
 
-import 'device.dart';
+import 'watermelon.dart';
 
 class ServicesBinding extends Bindings {
   @override
   void dependencies() {
-    Get.put(Device());
+    Get.put(Watermelon());
   }
 }
