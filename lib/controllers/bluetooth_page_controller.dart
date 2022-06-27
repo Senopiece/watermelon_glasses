@@ -15,34 +15,26 @@ import 'package:watermelon_glasses/views/bluetooth_page/discovery_page.dart';
 // TODO: adapter turn off catch
 // TODO: device does not follow protocol catch
 
-abstract class PageBuilder {
-  Widget build() => throw UnimplementedError();
-}
-
-class ConnectionPageBuilder implements PageBuilder {
-  @override
-  Widget build() => const ConnectionPage();
-}
-
-class DiscoveryPageBuilder implements PageBuilder {
-  @override
-  Widget build() => const DiscoveryPage();
-}
-
 /// controls switches between ConnectionPage and DiscoveryPage
 class BluetoothPageController extends GetxController {
-  final Rx<PageBuilder> _page = DiscoveryPageBuilder().obs;
+  final _page = Rxn<Widget>();
 
-  PageBuilder get page => _page.value;
-  set page(PageBuilder newPage) => _page.value = newPage;
+  Widget get page => _page.value!;
+  set page(Widget newPage) => _page.value = newPage;
 
-  void gotoConnectionPage(BluetoothDevice arg) {
+  void gotoConnectionSubPage(BluetoothDevice arg) {
     Get.put(ConnectionPageController(arg));
-    page = ConnectionPageBuilder();
+    page = const ConnectionPage();
   }
 
-  void gotoDiscoveryPage() {
+  void gotoDiscoverySubPage() {
     Get.delete<ConnectionPageController>();
-    page = DiscoveryPageBuilder();
+    page = const DiscoveryPage();
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    page = const DiscoveryPage();
   }
 }

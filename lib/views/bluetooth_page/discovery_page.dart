@@ -22,7 +22,7 @@ class DiscoveryPage extends GetView<DiscoveryPageController> {
             itemBuilder: (context, index) {
               final device = controller.results[index].device;
               return ElevatedButton(
-                onPressed: () => controller.gotoConnectionPage(device),
+                onPressed: () => controller.gotoConnectionSubPage(device),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

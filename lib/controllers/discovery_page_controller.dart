@@ -14,8 +14,8 @@ class DiscoveryPageController extends GetxController {
       _discovery.value = val;
   bool get isDiscovering => discovery != null;
 
-  void gotoConnectionPage(BluetoothDevice arg) {
-    Get.find<BluetoothPageController>().gotoConnectionPage(arg);
+  void gotoConnectionSubPage(BluetoothDevice arg) {
+    Get.find<BluetoothPageController>().gotoConnectionSubPage(arg);
   }
 
   @override

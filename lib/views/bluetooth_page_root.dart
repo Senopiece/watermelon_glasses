@@ -8,7 +8,9 @@ class BluetoothPageRoot extends GetView<BluetoothPageController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Obx(() => controller.page.build()),
+      body: Obx(
+        () => controller.page,
+      ),
     );
   }
 }

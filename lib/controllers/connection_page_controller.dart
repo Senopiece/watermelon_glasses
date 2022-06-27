@@ -12,8 +12,8 @@ class ConnectionPageController extends GetxController {
 
   // TODO: rx connection updates
 
-  void gotoDiscoveryPage() {
-    Get.find<BluetoothPageController>().gotoDiscoveryPage();
+  void gotoDiscoverySubPage() {
+    Get.find<BluetoothPageController>().gotoDiscoverySubPage();
   }
 
   @override

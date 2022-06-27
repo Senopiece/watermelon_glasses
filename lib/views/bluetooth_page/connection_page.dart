@@ -9,9 +9,9 @@ class ConnectionPage extends GetView<ConnectionPageController> {
   @override
   Widget build(BuildContext context) {
     // TODO: add observable variables to the ConnectionPageController
-    return Obx(
-      () => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
             'Device Name: ${controller.device.address}',
@@ -27,8 +27,8 @@ class ConnectionPage extends GetView<ConnectionPageController> {
             'Address: ${controller.device.address}',
           ),
           ElevatedButton(
-            onPressed: controller.gotoDiscoveryPage,
-            child: Text('Address: ${controller.device.address}'),
+            onPressed: controller.gotoDiscoverySubPage,
+            child: const Text('disconnect'),
           ),
         ],
       ),
