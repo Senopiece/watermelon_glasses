@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' as flutter_services;
 import 'package:get/get.dart';
-import 'pages/pages.dart';
-import 'services/binding.dart';
+import 'package:watermelon_glasses/controllers/root_controller.dart';
+import 'package:watermelon_glasses/pages/manual_page.dart';
+import 'package:watermelon_glasses/pages/settings_page.dart';
+import 'package:watermelon_glasses/pages/time_page.dart';
+import 'package:watermelon_glasses/views/root.dart';
+import 'pages/bluetooth_page.dart';
 import 'translations/localization.dart';
 
 void main() {
@@ -25,11 +29,25 @@ class WatermelonGlasses extends StatelessWidget {
       locale: Get.deviceLocale,
       fallbackLocale: const Locale('en', 'US'),
       debugShowCheckedModeBanner: false,
-      initialBinding: ServicesBinding(),
-      initialRoute: mainPage.name,
+      initialBinding: BindingsBuilder(() {
+        Get.put(RootController());
+      }),
+      initialRoute: bluePage.name,
       getPages: [
-        mainPage,
+        bluePage,
+        timePage,
+        manualPage,
+        settingsPage,
       ],
+      builder: (context, content) {
+        return Overlay(
+          initialEntries: [
+            OverlayEntry(
+              builder: (context) => ApplicationRoot(child: content!),
+            )
+          ],
+        );
+      },
     );
   }
 }
