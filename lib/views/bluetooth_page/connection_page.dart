@@ -18,7 +18,7 @@ class ConnectionPage extends GetView<ConnectionPageController> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: (controller.connector.state is Connected)
+              color: (controller.connector.currentState is Connected)
                   ? Colors.green
                   : null,
             ),

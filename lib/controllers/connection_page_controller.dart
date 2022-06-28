@@ -18,8 +18,8 @@ class ConnectionPageController extends GetxController {
 
   @override
   void onClose() {
-    if (connector.state is Connected) {
-      (connector.state as Connected).connection.close();
+    if (connector.currentState is Connected) {
+      (connector.currentState as Connected).connection.close();
     }
     super.onClose();
   }

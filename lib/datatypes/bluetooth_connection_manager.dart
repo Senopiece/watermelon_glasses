@@ -1,35 +1,65 @@
+import 'dart:async';
+
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
-/// disconnected <-auto- -connect-> connecting -auto-> connected -auto-> disconnected
-abstract class BluetoothConnectionManagerState {}
-
-class Disconnected implements BluetoothConnectionManagerState {}
-
-class Connecting implements BluetoothConnectionManagerState {
-  final Future<BluetoothConnection> _futureConnection;
-  Future<BluetoothConnection> get futureConnection => _futureConnection;
-  Connecting(this._futureConnection);
-}
-
-class Connected implements BluetoothConnectionManagerState {
-  final BluetoothConnection _connection;
-  BluetoothConnection get connection => _connection;
-  Connected(this._connection);
-
-  // TODO: detect disconnection 2
-}
+import 'listenable.dart';
 
 /// state machine over BluetoothConnection
 class BluetoothConnectionManager {
   final String address;
-  BluetoothConnectionManagerState _state;
+  final _state = Listenable<BluetoothConnectionManagerState>(Disconnected());
 
-  BluetoothConnectionManagerState get state => _state; // TODO: states stream 3
-  BluetoothConnectionManager(this.address) : _state = Disconnected();
+  BluetoothConnectionManager(this.address);
+
+  BluetoothConnectionManagerState get currentState => _state.data;
+  Stream<BluetoothConnectionManagerState> get statesStream => _state.stream;
 
   void connect() {
-    assert(_state is Disconnected);
-    _state = Connecting(BluetoothConnection.toAddress(address));
-    // TODO: await connection 1
+    // assert guarantees that there is no other future modifying state
+    assert(currentState is Disconnected);
+
+    // prepare to run future
+    Future<BluetoothConnection> connf = BluetoothConnection.toAddress(address);
+    _updateState(Connecting(connf));
+
+    // run auto state flow
+    Future(
+      () async {
+        late final BluetoothConnection conn;
+        try {
+          conn = await connf;
+        } catch (e) {
+          _updateState(Disconnected());
+          return;
+        }
+
+        // TODO: make sure no exceptions
+        _updateState(Connected(conn));
+
+        // TODO: auto goto disconnected
+      },
+    );
+  }
+
+  /// private because external modification may cause undefined behaviour
+  void _updateState(BluetoothConnectionManagerState newState) {
+    _state.data = newState;
   }
 }
+
+/// disconnected <-auto- -connect-> connecting -auto-> connected -auto-> disconnected
+abstract class BluetoothConnectionManagerState {}
+
+class Connected implements BluetoothConnectionManagerState {
+  final BluetoothConnection _connection;
+  Connected(this._connection);
+  BluetoothConnection get connection => _connection;
+}
+
+class Connecting implements BluetoothConnectionManagerState {
+  final Future<BluetoothConnection> _futureConnection;
+  Connecting(this._futureConnection);
+  Future<BluetoothConnection> get futureConnection => _futureConnection;
+}
+
+class Disconnected implements BluetoothConnectionManagerState {}
