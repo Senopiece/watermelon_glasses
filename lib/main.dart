@@ -23,9 +23,11 @@ class WatermelonGlasses extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+      //key: UniqueKey(),
       title: 'Watermelon Glasses',
       translations: AppLocalization(),
-      darkTheme: ThemeData.light(),
+      theme: ThemeData.light(), // TODO: custom
+      darkTheme: ThemeData.dark(), // TODO: custom
       locale: Get.deviceLocale,
       fallbackLocale: const Locale('en', 'US'),
       debugShowCheckedModeBanner: false,
