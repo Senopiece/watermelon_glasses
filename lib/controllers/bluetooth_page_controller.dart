@@ -14,6 +14,7 @@ import 'package:watermelon_glasses/views/bluetooth_page/discovery_page.dart';
 
 // TODO: adapter turn off catch
 // TODO: device does not follow protocol catch
+// TODO: device disconnection catch
 
 /// controls switches between ConnectionPage and DiscoveryPage
 class BluetoothPageController extends GetxController {

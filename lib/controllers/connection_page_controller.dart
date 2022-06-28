@@ -10,8 +10,6 @@ class ConnectionPageController extends GetxController {
   ConnectionPageController(this.device)
       : connector = BluetoothConnectionManager(device.address);
 
-  // TODO: rx connection updates
-
   void gotoDiscoverySubPage() {
     Get.find<BluetoothPageController>().gotoDiscoverySubPage();
   }

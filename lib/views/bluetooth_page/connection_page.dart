@@ -8,30 +8,60 @@ class ConnectionPage extends GetView<ConnectionPageController> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: add observable variables to the ConnectionPageController
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'Device Name: ${controller.device.address}',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: (controller.connector.currentState is Connected)
-                  ? Colors.green
-                  : null,
+    return StreamBuilder(
+      initialData: Disconnected(),
+      stream: controller.connector.statesStream,
+      builder: (context, AsyncSnapshot<BluetoothConnectionManagerState> snap) {
+        if (snap.hasData) {
+          BluetoothConnectionManagerState state = snap.data!;
+          late final Text label;
+          switch (state.runtimeType) {
+            case Connecting:
+              label = const Text('connecting');
+              break;
+            case Connected:
+              label = const Text('connected');
+              break;
+            case Disconnected:
+              label = const Text('disconnected');
+              break;
+            default:
+              throw TypeError();
+          }
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Device Name: ${controller.device.address}',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: (state is Connected) ? Colors.green : null,
+                  ),
+                ),
+                Text(
+                  'Address: ${controller.device.address}',
+                ),
+                label,
+                (state is Connecting)
+                    ? const Expanded(
+                        child: Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      )
+                    : ElevatedButton(
+                        onPressed: controller.gotoDiscoverySubPage,
+                        child: const Text('close'),
+                      )
+                // TODO: reconnect button in Disconnetced state
+              ],
             ),
-          ),
-          Text(
-            'Address: ${controller.device.address}',
-          ),
-          ElevatedButton(
-            onPressed: controller.gotoDiscoverySubPage,
-            child: const Text('disconnect'),
-          ),
-        ],
-      ),
+          );
+        } else {
+          return const Center(child: CircularProgressIndicator());
+        }
+      },
     );
   }
 }
