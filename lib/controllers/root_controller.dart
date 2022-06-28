@@ -17,7 +17,7 @@ class RootController extends GetxController {
           ? Transition.rightToLeft
           : Transition.leftToRight,
     );
-    Get.toNamed(getPages[index].name);
+    Get.offNamed(getPages[index].name);
 
     // update bottom bar
     currentIndex = index;
