@@ -23,7 +23,7 @@ class WatermelonGlasses extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      //key: UniqueKey(),
+      smartManagement: SmartManagement.onlyBuilder,
       title: 'Watermelon Glasses',
       translations: AppLocalization(),
       theme: ThemeData.light(), // TODO: custom
