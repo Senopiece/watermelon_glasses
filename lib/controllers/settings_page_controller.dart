@@ -18,7 +18,6 @@ class SettingsPageController extends GetxController {
 
   void switchTheme(value) {
     isDarkTheme = !isDarkTheme;
-    // TODO: persist theme after reload
     Get.changeThemeMode(isDarkTheme ? ThemeMode.dark : ThemeMode.light);
   }
 
