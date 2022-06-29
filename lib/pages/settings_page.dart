@@ -6,6 +6,6 @@ final settingsPage = GetPage(
   name: '/settings',
   page: () => const SettingsPageRoot(),
   binding: BindingsBuilder(() {
-    Get.put(SettingsPageController(), permanent: true);
+    Get.put(SettingsPageController());
   }),
 );
