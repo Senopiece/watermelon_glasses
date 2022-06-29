@@ -23,7 +23,7 @@ class ApplicationRoot extends GetWidget<RootController> {
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.bluetooth),
-              label: 'Bluetooth',
+              label: "Bluetooth",
               backgroundColor: Colors.green,
             ),
             BottomNavigationBarItem(

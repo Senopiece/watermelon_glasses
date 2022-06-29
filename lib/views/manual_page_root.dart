@@ -12,7 +12,7 @@ class ManualPageRoot extends GetView<ManualPageController> {
     return Scaffold(
       body: Obx(
         () => controller.watermelon == null
-            ? const Center(child: Text('no device connected'))
+            ?  Center(child: Text('no device connected'.tr))
             : ListView.separated(
                 itemCount: controller.channels.length,
                 itemBuilder: (context, index) {
@@ -21,7 +21,7 @@ class ManualPageRoot extends GetView<ManualPageController> {
                     padding: const EdgeInsets.all(10),
                     margin: const EdgeInsets.only(top: 10),
                     child: ChannelBox(
-                      name: 'Channel $index',
+                      name: '${'Channel'.tr}$index',
                       enabled: controller.channels[index],
                       onSwitch: () => controller.switchChannel(index),
                     ),
