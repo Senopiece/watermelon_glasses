@@ -19,6 +19,7 @@ class ApplicationRoot extends GetWidget<RootController> {
       body: child,
       bottomNavigationBar: Obx(
         () => BottomNavigationBar(
+          showSelectedLabels: false,
           currentIndex: controller.currentIndex,
           items: const [
             BottomNavigationBarItem(
@@ -43,6 +44,7 @@ class ApplicationRoot extends GetWidget<RootController> {
             ),
           ],
           onTap: controller.switchPage,
+          selectedItemColor: Get.isDarkMode? Colors.white : Colors.black,
         ),
       ),
     );
