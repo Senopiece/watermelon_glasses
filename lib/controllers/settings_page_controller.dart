@@ -7,6 +7,8 @@ class SettingsPageController extends GetxController {
   bool get isDarkTheme => _isDarkTheme.value;
   set isDarkTheme(bool val) => _isDarkTheme.value = val;
 
+  // TODO: detect initial dark theme
+
   void switchTheme(value) {
     isDarkTheme = !isDarkTheme;
     // TODO: persist theme after reload

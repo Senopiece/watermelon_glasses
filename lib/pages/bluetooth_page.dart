@@ -7,7 +7,7 @@ final bluePage = GetPage(
   name: '/blue',
   page: () => const BluetoothPageRoot(),
   binding: BindingsBuilder(() {
-    Get.put(DiscoveryPageController());
-    Get.put(BluetoothPageController());
+    Get.put(DiscoveryPageController(), permanent: true);
+    Get.put(BluetoothPageController(), permanent: true);
   }),
 );

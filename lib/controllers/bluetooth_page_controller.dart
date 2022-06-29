@@ -11,6 +11,7 @@ import 'package:watermelon_glasses/views/bluetooth_page/discovery_page.dart';
 // TODO: use another device
 // TODO: too many devices connected error
 // TODO: check if the device was already connected but try to connect here
+// TODO: bluetooth is disabled or becomes disabled while scanning or conecting or connected
 
 // TODO: adapter turn off catch
 // TODO: device does not follow protocol catch
@@ -24,12 +25,12 @@ class BluetoothPageController extends GetxController {
   set page(Widget newPage) => _page.value = newPage;
 
   void gotoConnectionSubPage(BluetoothDevice arg) {
-    Get.put(ConnectionPageController(arg));
+    Get.put(ConnectionPageController(arg), permanent: true);
     page = const ConnectionPage();
   }
 
   void gotoDiscoverySubPage() {
-    Get.delete<ConnectionPageController>();
+    Get.delete<ConnectionPageController>(force: true);
     page = const DiscoveryPage();
   }
 
