@@ -17,6 +17,7 @@ class DiscoveryPage extends GetView<DiscoveryPageController> {
             ),
           ),
           // TODO: animated add/remove
+          // TODO: center text "no devices found" when controller.results.length == 0
           ListView.separated(
             itemCount: controller.results.length,
             itemBuilder: (context, index) {
