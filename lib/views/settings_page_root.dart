@@ -14,18 +14,20 @@ class SettingsPageRoot extends GetView<SettingsPageController> {
           child: SettingsList(
             sections: [
               SettingsSection(
-                title: const Text('Common'),
+                title: Text('Common'.tr),
                 tiles: <SettingsTile>[
                   SettingsTile.navigation(
                     leading: const Icon(Icons.language),
-                    title: const Text('Language'),
-                    value: const Text('English'),
+                    title: Text('Language'.tr),
+                    value: Text('Language label'.tr),
+                    onPressed: controller.changeLanguage,
                   ),
                   SettingsTile.switchTile(
-                    onToggle: controller.switchTheme,
-                    initialValue: controller.isDarkTheme,
                     leading: const Icon(Icons.format_paint),
-                    title: const Text('Dark theme'),
+                    title: Text('Dark theme'.tr),
+                    initialValue: controller.isDarkTheme,
+                    onToggle: controller.switchTheme,
+
                   ),
                 ],
               ),
