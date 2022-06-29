@@ -9,4 +9,5 @@ const Map<String, String> enUs = {
   "Time" : "Time",
   "Manual" : "Manual",
   "Settings" : "Settings",
+
 };

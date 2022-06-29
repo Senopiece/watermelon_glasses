@@ -9,4 +9,5 @@ const Map<String, String> ruRU = {
   "Time" : "Выбор времени",
   "Manual" : "Ручное управление",
   "Settings" : "Настройки",
+
 };

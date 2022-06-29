@@ -18,7 +18,7 @@ class ApplicationRoot extends GetWidget<RootController> {
       ),
       body: child,
       bottomNavigationBar: Obx(
-        () => BottomNavigationBar(
+            () => BottomNavigationBar(
           currentIndex: controller.currentIndex,
           items:  [
             BottomNavigationBarItem(
