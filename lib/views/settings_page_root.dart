@@ -20,14 +20,12 @@ class SettingsPageRoot extends GetView<SettingsPageController> {
                     leading: const Icon(Icons.language),
                     title: Text('Language'.tr),
                     value: Text('Language label'.tr),
-                    onPressed: controller.changeLanguage,
                   ),
                   SettingsTile.switchTile(
                     leading: const Icon(Icons.format_paint),
                     title: Text('Dark theme'.tr),
                     initialValue: controller.isDarkTheme,
                     onToggle: controller.switchTheme,
-
                   ),
                 ],
               ),
