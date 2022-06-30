@@ -40,13 +40,13 @@ class ManualPageController extends GetxController {
           // collect channels number
           await watermelon!.exitManualMode();
           final schedule = await watermelon!.getSchedule();
-          channels.value = schedule.map<bool>((e) => false).toList();
           await watermelon!.enterManualMode();
+          channels.value = schedule.map<bool>((e) => false).toList();
         } on Occupied {
           rethrow;
         } catch (e) {
           watermelon = null;
-          print(e); // TODO: rm
+          rethrow;
         }
       },
     );

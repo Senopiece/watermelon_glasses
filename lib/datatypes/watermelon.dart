@@ -21,7 +21,7 @@ class Watermelon {
 
   /// must use internally
   Future<void> sendRaw(String data) async {
-    await connection.send(Uint8List.fromList(data.codeUnits));
+    await connection.send(Uint8List.fromList('$data\n'.codeUnits));
   }
 
   /// must use internally
@@ -68,14 +68,14 @@ class Watermelon {
   Future<void> openChannel(int index) => _asyncSafe(
         () async {
           assert(isManualMode);
-          await sendRaw("open $index");
+          await sendRaw("open ${index + 1}");
         },
       );
 
   Future<void> closeChannel(int index) => _asyncSafe(
         () async {
           assert(isManualMode);
-          await sendRaw("close $index");
+          await sendRaw("close ${index + 1}");
         },
       );
 
@@ -109,6 +109,7 @@ class Watermelon {
         () async {
           await sendRaw("get shedule");
           final lines = (await getRaw()).split('\n');
+          lines.removeLast();
 
           final res = <List<TimeInterval>>[];
           for (String line in lines) {
@@ -117,7 +118,11 @@ class Watermelon {
             final parts = line.split(',');
             for (String part in parts) {
               part = part.trim();
-              channelSchedule.add(TimeInterval.parse(part));
+              try {
+                channelSchedule.add(TimeInterval.parse(part));
+              } catch (e) {
+                // do nothing
+              }
             }
             res.add(channelSchedule);
           }

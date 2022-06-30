@@ -71,8 +71,6 @@ class Connected implements BluetoothConnectionManagerState {
   }) : _whenDisconnected = whenDisconnected {
     _connection.input!.listen(
       (Uint8List data) {
-        print('reeeed!!!!!!!');
-        print(data);
         _buff.addAll(data);
       },
     ).onDone(_whenDisconnected);
@@ -81,8 +79,10 @@ class Connected implements BluetoothConnectionManagerState {
   RRC get rrc => DelegateRRC(
         // input (passed to DelegateRRC.get())
         () async {
-          print('get');
-          await Future.delayed(const Duration(seconds: 5));
+          // will block until buffer becomes filled
+          while (_buff.isEmpty) {
+            await Future.delayed(const Duration(milliseconds: 10));
+          }
           final tmp = <int>[];
           tmp.addAll(_buff);
           _buff.clear();
@@ -90,7 +90,6 @@ class Connected implements BluetoothConnectionManagerState {
         },
         // output (passed to DelegateRRC.send())
         (Uint8List msg) async {
-          print('send');
           _connection.output.add(msg);
           await _connection.output.allSent;
         },
@@ -105,4 +104,6 @@ class Connecting implements BluetoothConnectionManagerState {
   Future<void> get futureConnection => _futureConnection;
 }
 
-class Disconnected implements BluetoothConnectionManagerState {}
+class Disconnected implements BluetoothConnectionManagerState {
+  // TODO: add reasoning
+}

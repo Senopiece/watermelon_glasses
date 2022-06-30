@@ -13,22 +13,26 @@ class ManualPageRoot extends GetView<ManualPageController> {
       body: Obx(
         () => controller.watermelon == null
             ? const Center(child: Text('no device connected'))
-            : ListView.separated(
-                itemCount: controller.channels.length,
-                itemBuilder: (context, index) {
-                  return Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(10),
-                    margin: const EdgeInsets.only(top: 10),
-                    child: ChannelBox(
-                      name: 'Channel $index',
-                      enabled: controller.channels[index],
-                      onSwitch: () => controller.switchChannel(index),
-                    ),
-                  );
-                },
-                separatorBuilder: (context, index) => const Divider(),
-              ),
+            : (controller.channels.isEmpty)
+                ? const Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : ListView.separated(
+                    itemCount: controller.channels.length,
+                    itemBuilder: (context, index) {
+                      return Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(10),
+                        margin: const EdgeInsets.only(top: 10),
+                        child: ChannelBox(
+                          name: 'Channel ${index + 1}',
+                          enabled: controller.channels[index],
+                          onSwitch: () => controller.switchChannel(index),
+                        ),
+                      );
+                    },
+                    separatorBuilder: (context, index) => const Divider(),
+                  ),
       ),
     );
   }
