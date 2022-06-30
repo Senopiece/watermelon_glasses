@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+// TODO: persist settings
 class SettingsPageController extends GetxController {
   final _isDarkTheme = false.obs;
 
@@ -11,19 +12,16 @@ class SettingsPageController extends GetxController {
   * 1 - Russian
    */
 
-
-
   bool get isDarkTheme => _isDarkTheme.value;
   set isDarkTheme(bool val) => _isDarkTheme.value = val;
 
   void switchTheme(value) {
     isDarkTheme = !isDarkTheme;
-    // TODO: persist theme after reload
     Get.changeThemeMode(isDarkTheme ? ThemeMode.dark : ThemeMode.light);
   }
 
   void changeLanguage(value) {
-    switch(_languageNumber % _numberOfLanguage) {
+    switch (_languageNumber % _numberOfLanguage) {
       case 0:
         Get.updateLocale(const Locale("en", "US"));
         break;
