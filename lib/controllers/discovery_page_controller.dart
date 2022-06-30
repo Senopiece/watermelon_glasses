@@ -4,10 +4,6 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:get/get.dart';
 import 'package:watermelon_glasses/controllers/bluetooth_page_controller.dart';
 
-// TODO: add refresh
-// TODO: show when there is no bluetooth
-//(update via refresh, no need to listen when bluetooth enables)
-
 // 2) set time in the auto mode (two states)
 // 3) add isBufferEmpty rrc assert which redirects to crashanalytics
 // 4) on the auto page add buttons like the cli interface does,
