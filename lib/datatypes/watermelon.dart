@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -8,13 +10,18 @@ import 'time_interval.dart';
 
 // TODO: check error response (eg listen to a responce)
 
-class Occupied extends Error {}
+typedef FutureProducer<T> = Future<T> Function();
+
+class Task<T> {
+  final FutureProducer<T> f;
+  final Completer<T> c;
+  Task(this.f, this.c);
+}
 
 /// wrapper over BluetoothConnection to support watermelon commands,
 /// see https://github.com/Senopiece/watermelon/blob/main/README.md
 class Watermelon {
   final RRC connection;
-  bool _busy = false;
 
   bool? _isManualMode = false;
   bool? get isManualMode => _isManualMode;
@@ -22,9 +29,6 @@ class Watermelon {
   Future<int>? _channelsCount;
 
   /// slow on the first access, immediate after
-  ///
-  /// also blocks other functionality on the first invocation
-  ///  (see [_asyncSafe])
   ///
   /// Important: ensure manual mode is not manual,
   /// before calling this thing the first time,
@@ -36,7 +40,32 @@ class Watermelon {
     return _channelsCount!;
   }
 
-  Watermelon(this.connection);
+  /// Important: set [actions] to null before freeing the instance
+  /// Note: if you added too many actions and don't want to do them all,
+  /// you can call `actions.clear()`
+  Queue<Task>? actions = Queue<Task>();
+
+  Watermelon(this.connection) {
+    Future(
+      () async {
+        while (actions != null) {
+          // pick task
+          while (actions!.isEmpty) {
+            await Future.delayed(const Duration(milliseconds: 10));
+          }
+          Task nextTask = actions!.first;
+
+          // do task
+          try {
+            final res = await nextTask.f();
+            nextTask.c.complete(res);
+          } catch (e) {
+            nextTask.c.completeError(e);
+          }
+        }
+      },
+    );
+  }
 
   /// must use internally
   Future<void> sendRaw(String data) async {
@@ -50,25 +79,10 @@ class Watermelon {
 
   /// internal protector
   /// methods protected by him cannot be invoked in parallel
-  Future<T> _asyncSafe<T>(Future<T> Function() f) {
-    if (_busy) {
-      throw Occupied();
-    }
-    _busy = true;
-    return Future(
-      () async {
-        late final T res;
-        try {
-          res = await f();
-        } catch (e) {
-          _busy = false;
-          rethrow;
-        } finally {
-          _busy = false;
-        }
-        return res;
-      },
-    );
+  Future<T> _asyncSafe<T>(FutureProducer<T> f) {
+    final completer = Completer<T>();
+    actions!.add(Task<T>(f, completer));
+    return completer.future;
   }
 
   Future<void> enterManualMode() => _asyncSafe(
