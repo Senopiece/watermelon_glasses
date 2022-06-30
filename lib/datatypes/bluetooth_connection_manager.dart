@@ -37,12 +37,14 @@ class BluetoothConnectionManager {
           return;
         }
 
-        // TODO: make sure no exceptions
         _updateState(
           Connected(
             conn,
             whenDisconnected: () {
-              // TODO: will it come here on conn.close() ?
+              // it will come here if
+              // - bluetooth was disabled
+              // - device disconnected
+              // - host disconnected
               _updateState(Disconnected());
             },
           ),
