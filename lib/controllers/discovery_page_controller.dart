@@ -4,6 +4,7 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:get/get.dart';
 import 'package:watermelon_glasses/controllers/bluetooth_page_controller.dart';
 
+// TODO: add refresh
 // TODO: no bluetooth notification + listen when blue enabled
 
 class DiscoveryPageController extends GetxController {
