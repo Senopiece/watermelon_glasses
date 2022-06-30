@@ -8,6 +8,8 @@ import 'package:watermelon_glasses/datatypes/watermelon.dart';
 
 import 'connection_page_controller.dart';
 
+typedef FutureProducer = Future<void> Function();
+
 class ManualPageController extends GetxController {
   final _watermelon = Rxn<Watermelon>();
   final channels = <bool>[].obs;
@@ -15,8 +17,6 @@ class ManualPageController extends GetxController {
   late final ConnectionPageController? connectionController;
   late final StreamSubscription<BluetoothConnectionManagerState>?
       statesStreamListener;
-
-  Future<void>? preparator;
 
   Watermelon? get watermelon => _watermelon.value;
   set watermelon(Watermelon? val) => _watermelon.value = val;
@@ -48,7 +48,7 @@ class ManualPageController extends GetxController {
     watermelon = connectionController!.getWatermelon;
 
     if (watermelon != null) {
-      preparator = Future(
+      Future(
         () async {
           channels.value = List.filled(
             await watermelon!.channelsCount,
@@ -85,7 +85,6 @@ class ManualPageController extends GetxController {
 
           // throw the prev descriptor
           watermelon = null;
-          preparator = null;
 
           // if there is a new descriptor, pick it
           _instantiateWatermelon();
@@ -97,14 +96,7 @@ class ManualPageController extends GetxController {
   @override
   void onClose() {
     statesStreamListener?.cancel();
-    Future(
-      () async {
-        if (preparator != null) {
-          await preparator;
-        }
-        await watermelon?.exitManualMode();
-      },
-    );
+    watermelon?.exitManualMode();
     super.onClose();
   }
 }

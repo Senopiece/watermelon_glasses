@@ -81,7 +81,12 @@ class ConnectionPageController extends GetxController {
             },
           );
         } else {
+          // fully dispose watermelon according to doc of [actions] parameter
+          _watermelon?.actions?.clear();
+          _watermelon?.actions = null;
           _watermelon = null;
+
+          // retranslate
           _connectionStateRetranslator.add(newState);
         }
 
