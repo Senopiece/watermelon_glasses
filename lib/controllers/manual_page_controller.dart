@@ -46,7 +46,7 @@ class ManualPageController extends GetxController {
           rethrow;
         } catch (e) {
           watermelon = null;
-          rethrow;
+          // TODO: report to the crashanlytics
         }
       },
     );
