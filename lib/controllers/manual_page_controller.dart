@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:watermelon_glasses/datatypes/bluetooth_connection_manager.dart';
 import 'package:watermelon_glasses/datatypes/watermelon.dart';
 
 import 'connection_page_controller.dart';
@@ -9,6 +12,9 @@ class ManualPageController extends GetxController {
   late final Future<void> watermelonCreator;
   final _watermelon = Rxn<Watermelon>();
   final channels = <bool>[].obs;
+
+  late final StreamSubscription<BluetoothConnectionManagerState>
+      statesStreamListener;
 
   Watermelon? get watermelon => _watermelon.value;
   set watermelon(Watermelon? val) => _watermelon.value = val;
@@ -56,10 +62,20 @@ class ManualPageController extends GetxController {
         }
       },
     );
+
+    statesStreamListener =
+        Get.find<ConnectionPageController>().connector.statesStream.listen(
+      (newState) {
+        if (newState is Disconnected) {
+          watermelon = null;
+        }
+      },
+    );
   }
 
   @override
   void onClose() {
+    statesStreamListener.cancel();
     Future(
       () async {
         await watermelonCreator;
