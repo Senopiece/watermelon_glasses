@@ -6,6 +6,8 @@ import 'time_page_controller.dart';
 /// NOTE: this class delegates all the context work to the TimePageController,
 /// so like the connection setup into not manual mode etc...
 class TimeSyncController extends GetxController {
+  // TODO: rewrite to the pure update(),
+  // no reactivity, use get time/set time cache from watermelon
   final _time = Rxn<DateTime>();
   final _unsynced = false.obs;
 

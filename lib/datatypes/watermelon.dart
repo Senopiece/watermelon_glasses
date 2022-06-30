@@ -44,6 +44,8 @@ class Watermelon {
 
   Queue<Task>? _actions = Queue<Task>();
 
+  // TODO: cache set time/get time also
+
   /// Important: call this before freeing the instance completely
   void free() {
     flushActions();

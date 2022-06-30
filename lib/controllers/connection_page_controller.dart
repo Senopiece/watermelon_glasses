@@ -72,6 +72,7 @@ class ConnectionPageController extends GetxController {
           // so it further can be accessed immediately
           Future(
             () async {
+              // TODO: cache set time/get time also
               await _watermelon!.exitManualMode();
               await _watermelon!.channelsCount;
 
