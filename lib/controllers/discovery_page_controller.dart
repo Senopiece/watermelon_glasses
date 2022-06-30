@@ -5,7 +5,8 @@ import 'package:get/get.dart';
 import 'package:watermelon_glasses/controllers/bluetooth_page_controller.dart';
 
 // TODO: add refresh
-// TODO: no bluetooth notification + listen when blue enabled
+// TODO: show when there is no bluetooth
+//(update via refresh, no need to listen when bluetooth enables)
 
 class DiscoveryPageController extends GetxController {
   final results = <BluetoothDiscoveryResult>[].obs;
