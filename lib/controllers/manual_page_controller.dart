@@ -96,6 +96,7 @@ class ManualPageController extends GetxController {
   @override
   void onClose() {
     statesStreamListener?.cancel();
+    watermelon?.flushActions();
     watermelon?.exitManualMode();
     super.onClose();
   }
