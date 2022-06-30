@@ -19,6 +19,23 @@ class Watermelon {
   bool? _isManualMode = false;
   bool? get isManualMode => _isManualMode;
 
+  Future<int>? _channelsCount;
+
+  /// slow on the first access, immediate after
+  ///
+  /// also blocks other functionality on the first invocation
+  ///  (see [_asyncSafe])
+  ///
+  /// Important: ensure manual mode is not manual,
+  /// before calling this thing the first time,
+  /// otherwise the returned future will newer complete
+  Future<int> get channelsCount {
+    _channelsCount ??= Future(
+      () async => (await getSchedule()).length,
+    );
+    return _channelsCount!;
+  }
+
   Watermelon(this.connection);
 
   /// must use internally
@@ -32,6 +49,7 @@ class Watermelon {
   }
 
   /// internal protector
+  /// methods protected by him cannot be invoked in parallel
   Future<T> _asyncSafe<T>(Future<T> Function() f) {
     if (_busy) {
       throw Occupied();

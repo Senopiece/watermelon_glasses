@@ -13,9 +13,10 @@ class ManualPageController extends GetxController {
   final channels = <bool>[].obs;
 
   late final ConnectionPageController? connectionController;
-  late final Future<void>? watermelonCreator;
   late final StreamSubscription<BluetoothConnectionManagerState>?
       statesStreamListener;
+
+  Future<void>? preparator;
 
   Watermelon? get watermelon => _watermelon.value;
   set watermelon(Watermelon? val) => _watermelon.value = val;
@@ -42,6 +43,23 @@ class ManualPageController extends GetxController {
     }
   }
 
+  /// NOTE: ensure connectionController is not null
+  void _instantiateWatermelon() {
+    watermelon = connectionController!.getWatermelon;
+
+    if (watermelon != null) {
+      preparator = Future(
+        () async {
+          channels.value = List.filled(
+            await watermelon!.channelsCount,
+            false,
+          );
+          await watermelon!.enterManualMode();
+        },
+      );
+    }
+  }
+
   @override
   void onInit() {
     super.onInit();
@@ -49,36 +67,28 @@ class ManualPageController extends GetxController {
       connectionController = Get.find<ConnectionPageController>();
     } on String {
       connectionController = null;
-      watermelonCreator = null;
       statesStreamListener = null;
     }
 
     if (connectionController != null) {
-      watermelonCreator = Future(
-        () async {
-          try {
-            // wrap connection into descriptor
-            watermelon = Watermelon(connectionController!.getRRC);
+      // consume initial state
+      _instantiateWatermelon();
 
-            // collect channels number
-            await watermelon!.exitManualMode();
-            final schedule = await watermelon!.getSchedule();
-            await watermelon!.enterManualMode();
-            channels.value = schedule.map<bool>((e) => false).toList();
-          } catch (e) {
-            watermelon = null;
-            print(e);
-            // TODO: report to the crashanlytics
-          }
-        },
-      );
-
-      statesStreamListener =
-          connectionController!.connector.statesStream.listen(
+      // listen to the further states
+      statesStreamListener = connectionController!.statesStream.listen(
         (newState) {
-          if (newState is Disconnected) {
-            watermelon = null;
-          }
+          // there is a good place to cancel [preparator],
+          // but dart Futures cannot be cancelled
+
+          // so we don't mind what happens to the prev connection,
+          // it's now not in our area of response
+
+          // throw the prev descriptor
+          watermelon = null;
+          preparator = null;
+
+          // if there is a new descriptor, pick it
+          _instantiateWatermelon();
         },
       );
     }
@@ -89,8 +99,10 @@ class ManualPageController extends GetxController {
     statesStreamListener?.cancel();
     Future(
       () async {
-        await watermelonCreator;
-        watermelon?.exitManualMode();
+        if (preparator != null) {
+          await preparator;
+        }
+        await watermelon?.exitManualMode();
       },
     );
     super.onClose();
