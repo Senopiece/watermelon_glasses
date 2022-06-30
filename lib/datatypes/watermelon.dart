@@ -69,6 +69,7 @@ class Watermelon {
           // pick task
           while (_actions!.isEmpty) {
             await Future.delayed(const Duration(milliseconds: 10));
+            if (_actions == null) return;
           }
           Task nextTask = _actions!.first;
           _actions!.removeFirst();
