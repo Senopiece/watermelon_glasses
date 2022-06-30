@@ -105,5 +105,5 @@ class Connecting implements BluetoothConnectionManagerState {
 }
 
 class Disconnected implements BluetoothConnectionManagerState {
-  // TODO: add reasoning
+  // TODO: add reasoning (e.g. 'failed to connect', 'disconnected by the device', 'disconnected by the host')
 }
