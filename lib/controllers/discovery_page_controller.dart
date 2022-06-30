@@ -8,15 +8,29 @@ import 'package:watermelon_glasses/controllers/bluetooth_page_controller.dart';
 // TODO: show when there is no bluetooth
 //(update via refresh, no need to listen when bluetooth enables)
 
+// 2) set time in the auto mode (two states)
+// 3) add isBufferEmpty rrc assert which redirects to crashanalytics
+// 4) on the auto page add buttons like the cli interface does,
+// also provide a plus button to the time picker which cannot allow you to pick incorrect time,
+// so we always expect empty output from the device
+
 class DiscoveryPageController extends GetxController {
-  final results = <BluetoothDiscoveryResult>[].obs;
   final _discovery = Rxn<StreamSubscription<BluetoothDiscoveryResult>?>();
 
   StreamSubscription<BluetoothDiscoveryResult>? get discovery =>
       _discovery.value;
   set discovery(StreamSubscription<BluetoothDiscoveryResult>? val) =>
       _discovery.value = val;
-  bool get isDiscovering => discovery != null;
+
+  final results = <BluetoothDiscoveryResult>[].obs;
+  final _isBlueEnabled = Rxn<bool>();
+  final _isDiscovering = false.obs;
+
+  bool? get isBlueEnabled => _isBlueEnabled.value;
+  set isBlueEnabled(bool? newVal) => _isBlueEnabled.value = newVal;
+
+  bool get isDiscovering => _isDiscovering.value;
+  set isDiscovering(bool newVal) => _isDiscovering.value = newVal;
 
   void gotoConnectionSubPage(BluetoothDevice arg) {
     Get.find<BluetoothPageController>().gotoConnectionSubPage(arg);
@@ -36,31 +50,40 @@ class DiscoveryPageController extends GetxController {
 
   void startDiscovery() {
     assert(!isDiscovering);
+    isDiscovering = true;
 
     // flush data
     results.clear();
 
-    // subscribe device detection
-    discovery = FlutterBluetoothSerial.instance.startDiscovery().listen(
-      (r) {
-        final existingIndex = results.indexWhere(
-            (element) => element.device.address == r.device.address);
+    Future(() async {
+      isBlueEnabled = (await FlutterBluetoothSerial.instance.isEnabled) == true;
+      if (!isBlueEnabled!) {
+        isDiscovering = false;
+        return;
+      }
 
-        if (r.device.name == null) {
-          if (existingIndex >= 0) {
-            results.removeAt(existingIndex);
+      // subscribe device detection
+      discovery = FlutterBluetoothSerial.instance.startDiscovery().listen(
+        (r) {
+          final existingIndex = results.indexWhere(
+              (element) => element.device.address == r.device.address);
+
+          if (r.device.name == null) {
+            if (existingIndex >= 0) {
+              results.removeAt(existingIndex);
+            }
+          } else if (existingIndex >= 0) {
+            results[existingIndex] = r;
+          } else {
+            results.add(r);
           }
-        } else if (existingIndex >= 0) {
-          results[existingIndex] = r;
-        } else {
-          results.add(r);
-        }
-      },
-    );
+        },
+      );
 
-    // make sure done to free after it's done
-    discovery!.onDone(() {
-      discovery = null;
+      // make sure done to free after it's done
+      discovery!.onDone(() {
+        isDiscovering = false;
+      });
     });
   }
 }
