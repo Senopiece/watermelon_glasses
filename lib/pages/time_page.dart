@@ -8,6 +8,6 @@ final timePage = GetPage(
   page: () => const TimePageRoot(),
   binding: BindingsBuilder(() {
     Get.put(TimePageController());
-    Get.put(TimeSyncController());
+    Get.lazyPut(() => TimeSyncController());
   }),
 );
