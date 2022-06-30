@@ -25,7 +25,7 @@ class ManualPageRoot extends GetView<ManualPageController> {
                         padding: const EdgeInsets.all(10),
                         margin: const EdgeInsets.only(top: 10),
                         child: ChannelBox(
-                          name: 'Channel ${index + 1}',
+                          name: '${'Channel'.tr} ${index + 1}',
                           enabled: controller.channels[index],
                           onSwitch: () => controller.switchChannel(index),
                         ),

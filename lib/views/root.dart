@@ -18,27 +18,27 @@ class ApplicationRoot extends GetWidget<RootController> {
       ),
       body: child,
       bottomNavigationBar: Obx(
-        () => BottomNavigationBar(
+            () => BottomNavigationBar(
           currentIndex: controller.currentIndex,
-          items: const [
+          items:  [
             BottomNavigationBarItem(
-              icon: Icon(Icons.bluetooth),
-              label: 'Bluetooth',
+              icon: const Icon(Icons.bluetooth),
+              label: "Bluetooth".tr,
               backgroundColor: Colors.green,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.access_time),
-              label: 'Time',
+              icon: const Icon(Icons.access_time),
+              label: 'Time'.tr,
               backgroundColor: Colors.green,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.back_hand),
-              label: 'Manual',
+              icon: const Icon(Icons.back_hand),
+              label: 'Manual'.tr,
               backgroundColor: Colors.green,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
-              label: 'Settings',
+              icon: const Icon(Icons.settings),
+              label: 'Settings'.tr,
               backgroundColor: Colors.green,
             ),
           ],

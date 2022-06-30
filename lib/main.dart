@@ -27,6 +27,7 @@ class WatermelonGlasses extends StatelessWidget {
       translations: AppLocalization(),
       theme: ThemeData.light(), // TODO: custom
       darkTheme: ThemeData.dark(), // TODO: custom
+      themeMode: ThemeMode.light,
       locale: Get.deviceLocale,
       fallbackLocale: const Locale('en', 'US'),
       debugShowCheckedModeBanner: false,
