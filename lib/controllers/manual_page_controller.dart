@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:watermelon_glasses/datatypes/watermelon.dart';
 
@@ -18,13 +20,19 @@ class ManualPageController extends GetxController {
       } else {
         await watermelon!.openChannel(index);
       }
+      await watermelon!.getTime(); // ensure connection is stable
       channels[index] = !channels[index];
     } catch (e) {
-      Get.snackbar(
-        "error",
-        "failed to ${channels[index] ? 'close' : 'open'} channel",
+      Fluttertoast.cancel();
+      Fluttertoast.showToast(
+        msg: "failed to ${channels[index] ? 'close' : 'open'} channel",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
       );
-      rethrow;
+      rethrow; // to be further handled by crashanalytics
     }
   }
 
@@ -46,6 +54,7 @@ class ManualPageController extends GetxController {
           rethrow;
         } catch (e) {
           watermelon = null;
+          print(e);
           // TODO: report to the crashanlytics
         }
       },
