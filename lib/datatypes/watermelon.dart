@@ -10,6 +10,8 @@ import 'time_interval.dart';
 
 // TODO: check error response (eg listen to a responce)
 
+class Cancelled extends Error {}
+
 typedef FutureProducer<T> = Future<T> Function();
 
 class Task<T> {
@@ -40,20 +42,36 @@ class Watermelon {
     return _channelsCount!;
   }
 
-  /// Important: set [actions] to null before freeing the instance
+  Queue<Task>? _actions = Queue<Task>();
+
+  /// Important: call this before freeing the instance completely
+  void free() {
+    flushActions();
+    _actions = null;
+  }
+
   /// Note: if you added too many actions and don't want to do them all,
-  /// you can call `actions.clear()`
-  Queue<Task>? actions = Queue<Task>();
+  /// you can call `flushActions()`,
+  /// it will complete all the pending with exception [Cancelled]
+  void flushActions() {
+    if (_actions != null) {
+      for (final action in _actions!) {
+        action.c.completeError(Cancelled());
+      }
+      _actions!.clear();
+    }
+  }
 
   Watermelon(this.connection) {
     Future(
       () async {
-        while (actions != null) {
+        while (_actions != null) {
           // pick task
-          while (actions!.isEmpty) {
+          while (_actions!.isEmpty) {
             await Future.delayed(const Duration(milliseconds: 10));
           }
-          Task nextTask = actions!.first;
+          Task nextTask = _actions!.first;
+          _actions!.removeFirst();
 
           // do task
           try {
@@ -81,7 +99,7 @@ class Watermelon {
   /// methods protected by him cannot be invoked in parallel
   Future<T> _asyncSafe<T>(FutureProducer<T> f) {
     final completer = Completer<T>();
-    actions!.add(Task<T>(f, completer));
+    _actions!.add(Task<T>(f, completer));
     return completer.future;
   }
 
