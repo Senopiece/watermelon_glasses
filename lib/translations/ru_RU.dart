@@ -3,7 +3,7 @@ const Map<String, String> ruRU = {
   "Language label": "Русский",
   "Common": "Стандартные",
   "Dark theme": "Тёмная тема",
-  "no device connected": "нет подключенного устройства",
+  "no device connected": "устройство не подключено",
   "Channel": "Канал",
   "Bluetooth": "Подключение",
   "Time": "Выбор времени",
