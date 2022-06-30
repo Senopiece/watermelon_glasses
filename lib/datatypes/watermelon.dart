@@ -15,7 +15,9 @@ class Occupied extends Error {}
 class Watermelon {
   final RRC connection;
   bool _busy = false;
-  bool isManualMode = false; // TODO: check it's state dynamically
+
+  bool? _isManualMode = false;
+  bool? get isManualMode => _isManualMode;
 
   Watermelon(this.connection);
 
@@ -54,40 +56,41 @@ class Watermelon {
   Future<void> enterManualMode() => _asyncSafe(
         () async {
           await sendRaw("manual mode");
-          isManualMode = true;
+          _isManualMode = true;
         },
       );
 
   Future<void> exitManualMode() => _asyncSafe(
         () async {
           await sendRaw("exit manual mode");
-          isManualMode = false;
+          _isManualMode = false;
         },
       );
 
   Future<void> openChannel(int index) => _asyncSafe(
         () async {
-          assert(isManualMode);
+          assert(isManualMode!);
           await sendRaw("open ${index + 1}");
         },
       );
 
   Future<void> closeChannel(int index) => _asyncSafe(
         () async {
-          assert(isManualMode);
+          assert(isManualMode!);
           await sendRaw("close ${index + 1}");
         },
       );
 
   Future<void> setTime(DateTime time) => _asyncSafe(
         () async {
-          assert(!isManualMode);
+          assert(!isManualMode!);
           await sendRaw("set time ${time.hour}:${time.minute}:${time.second}");
         },
       );
 
   Future<DateTime> getTime() => _asyncSafe(
         () async {
+          assert(!isManualMode!);
           await sendRaw("get time");
           final parts = (await getRaw()).split(':');
           final h = int.parse(parts[0]);
@@ -107,6 +110,7 @@ class Watermelon {
   /// ]
   Future<List<List<TimeInterval>>> getSchedule() => _asyncSafe(
         () async {
+          assert(!isManualMode!);
           await sendRaw("get shedule");
           final lines = (await getRaw()).split('\n');
           lines.removeLast();

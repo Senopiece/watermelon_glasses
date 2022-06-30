@@ -20,7 +20,6 @@ class ManualPageController extends GetxController {
       } else {
         await watermelon!.openChannel(index);
       }
-      await watermelon!.getTime(); // ensure connection is stable
       channels[index] = !channels[index];
     } catch (e) {
       Fluttertoast.cancel();
@@ -50,8 +49,6 @@ class ManualPageController extends GetxController {
           final schedule = await watermelon!.getSchedule();
           await watermelon!.enterManualMode();
           channels.value = schedule.map<bool>((e) => false).toList();
-        } on Occupied {
-          rethrow;
         } catch (e) {
           watermelon = null;
           print(e);
