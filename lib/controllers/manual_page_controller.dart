@@ -9,11 +9,12 @@ import 'package:watermelon_glasses/datatypes/watermelon.dart';
 import 'connection_page_controller.dart';
 
 class ManualPageController extends GetxController {
-  late final Future<void> watermelonCreator;
   final _watermelon = Rxn<Watermelon>();
   final channels = <bool>[].obs;
 
-  late final StreamSubscription<BluetoothConnectionManagerState>
+  late final ConnectionPageController? connectionController;
+  late final Future<void>? watermelonCreator;
+  late final StreamSubscription<BluetoothConnectionManagerState>?
       statesStreamListener;
 
   Watermelon? get watermelon => _watermelon.value;
@@ -44,38 +45,48 @@ class ManualPageController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    watermelonCreator = Future(
-      () async {
-        try {
-          // wrap connection into descriptor
-          watermelon = Watermelon(Get.find<ConnectionPageController>().getRRC);
+    try {
+      connectionController = Get.find<ConnectionPageController>();
+    } on String {
+      connectionController = null;
+      watermelonCreator = null;
+      statesStreamListener = null;
+    }
 
-          // collect channels number
-          await watermelon!.exitManualMode();
-          final schedule = await watermelon!.getSchedule();
-          await watermelon!.enterManualMode();
-          channels.value = schedule.map<bool>((e) => false).toList();
-        } catch (e) {
-          watermelon = null;
-          print(e);
-          // TODO: report to the crashanlytics
-        }
-      },
-    );
+    if (connectionController != null) {
+      watermelonCreator = Future(
+        () async {
+          try {
+            // wrap connection into descriptor
+            watermelon = Watermelon(connectionController!.getRRC);
 
-    statesStreamListener =
-        Get.find<ConnectionPageController>().connector.statesStream.listen(
-      (newState) {
-        if (newState is Disconnected) {
-          watermelon = null;
-        }
-      },
-    );
+            // collect channels number
+            await watermelon!.exitManualMode();
+            final schedule = await watermelon!.getSchedule();
+            await watermelon!.enterManualMode();
+            channels.value = schedule.map<bool>((e) => false).toList();
+          } catch (e) {
+            watermelon = null;
+            print(e);
+            // TODO: report to the crashanlytics
+          }
+        },
+      );
+
+      statesStreamListener =
+          connectionController!.connector.statesStream.listen(
+        (newState) {
+          if (newState is Disconnected) {
+            watermelon = null;
+          }
+        },
+      );
+    }
   }
 
   @override
   void onClose() {
-    statesStreamListener.cancel();
+    statesStreamListener?.cancel();
     Future(
       () async {
         await watermelonCreator;
