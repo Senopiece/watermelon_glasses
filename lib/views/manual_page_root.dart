@@ -12,7 +12,7 @@ class ManualPageRoot extends GetView<ManualPageController> {
     return Scaffold(
       body: Obx(
         () => controller.watermelon == null
-            ? const Center(child: Text('no device connected'))
+            ? Center(child: Text('no device connected'.tr))
             : (controller.channels.isEmpty)
                 ? const Center(
                     child: CircularProgressIndicator(),
