@@ -13,7 +13,9 @@ class TimePageRoot extends GetView<TimePageController> {
       body: Center(
         child: Obx(
           () => controller.watermelon == null
-              ? Text('no device connected'.tr)
+              ? controller.connecting
+                  ? const CircularProgressIndicator()
+                  : Text('no device connected'.tr)
               : const TimeSync(),
         ),
       ),

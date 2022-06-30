@@ -12,11 +12,15 @@ typedef FutureProducer = Future<void> Function();
 
 class ManualPageController extends GetxController {
   final _watermelon = Rxn<Watermelon>();
+  final _connecting = false.obs;
   final channels = <bool>[].obs;
 
   late final ConnectionPageController? connectionController;
   late final StreamSubscription<BluetoothConnectionManagerState>?
       statesStreamListener;
+
+  bool get connecting => _connecting.value;
+  set connecting(bool val) => _connecting.value = val;
 
   Watermelon? get watermelon => _watermelon.value;
   set watermelon(Watermelon? val) => _watermelon.value = val;
@@ -45,6 +49,8 @@ class ManualPageController extends GetxController {
 
   /// NOTE: ensure connectionController is not null
   void _instantiateWatermelon() {
+    connecting =
+        connectionController!.currentState == ConnectionSate.connecting;
     watermelon = connectionController!.getWatermelon;
 
     if (watermelon != null) {
