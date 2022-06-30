@@ -134,7 +134,8 @@ class Watermelon {
   Future<void> setTime(DateTime time) => _asyncSafe(
         () async {
           assert(!isManualMode!);
-          await sendRaw("set time ${time.hour}:${time.minute}:${time.second}");
+          await sendRaw(
+              "set time to ${time.hour}:${time.minute}:${time.second}");
         },
       );
 
