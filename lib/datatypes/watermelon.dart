@@ -145,6 +145,10 @@ class Watermelon {
   /// Note that usage of this function is more preferable then [channels]
   Future<int> get channelsCount async => (await channels).length;
 
+  /// use it only if you sure that the time was already cached
+  List<List<TimeInterval>> get immediateChannels => _channels!;
+  bool get canGetImmediateChannels => _channels != null;
+
   /// slow on the first access, immediate after
   ///
   /// Note that if it throws on the first access,
