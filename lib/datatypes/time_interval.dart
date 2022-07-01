@@ -20,6 +20,20 @@ class TimeInterval {
     return TimeInterval(boundaries[0], boundaries[1]);
   }
 
+  bool get isCorrect => endTime > startTime;
+
+  bool operator >(TimeInterval other) {
+    return startTime >= other.endTime;
+  }
+
+  @override
+  bool operator ==(covariant TimeInterval other) {
+    return startTime == other.startTime && endTime == other.endTime;
+  }
+
   @override
   String toString() => '${startTime.hm} - ${endTime.hm}';
+
+  @override
+  int get hashCode => startTime.hashCode ^ endTime.hashCode;
 }

@@ -34,6 +34,19 @@ class TimePick {
   factory TimePick.makePick(Time picked) => TimePick(picked, DateTime.now());
 }
 
+class BufferNotEmptyError extends Error {
+  final String drained;
+  BufferNotEmptyError(this.drained);
+}
+
+class InvalidChannelIndex extends Error {}
+
+class IncorrectTimeInterval extends Error {}
+
+class ChannelScheduleOverflow extends Error {}
+
+class IntervalIntersection extends Error {}
+
 /// wrapper over BluetoothConnection to support watermelon commands,
 /// see https://github.com/Senopiece/watermelon/blob/main/README.md
 class Watermelon {
@@ -47,6 +60,8 @@ class Watermelon {
 
   List<List<TimeInterval>>? _channels;
   Future<List<List<TimeInterval>>>? _channelsFuture;
+
+  int get channelScheduleCapacity => 16;
 
   Watermelon(this.connection) {
     // queue processor
@@ -63,7 +78,9 @@ class Watermelon {
 
           // do task
           try {
-            assert(connection.isBufferEmpty);
+            if (!connection.isBufferEmpty) {
+              throw BufferNotEmptyError(await getRaw());
+            }
             final res = await nextTask.f();
             nextTask.c.complete(res);
           } catch (e) {
@@ -316,21 +333,64 @@ class Watermelon {
         },
       );
 
-  Future<void> put(TimeInterval timeInterval, int channel) => _asyncSafe(
+  Future<void> put(TimeInterval interval, int channelIndex) => _asyncSafe(
         () async {
           assert(!isManualMode!);
           final schedule = await channels;
-          // TODO: ensure query is without any errors (test on cached schedule)
-          // TODO: update cached schedule
+
+          late final List<TimeInterval> intervals;
+          try {
+            intervals = schedule[channelIndex];
+          } catch (e) {
+            throw InvalidChannelIndex();
+          }
+
+          if (!interval.isCorrect) {
+            throw IncorrectTimeInterval();
+          }
+
+          if (intervals.length == channelScheduleCapacity) {
+            throw ChannelScheduleOverflow();
+          }
+
+          int i = 0;
+          for (i = 0; i != intervals.length; i++) {
+            if (intervals[i] > interval) break;
+          }
+
+          if ((i > 0) && !(interval > intervals[i - 1])) {
+            throw IntervalIntersection();
+          }
+
+          // TODO: too many channels working at the same time check (next versions of watermelon)
+
+          await sendRaw('put $interval to $channelIndex');
+          intervals.insert(i, interval);
         },
       );
 
-  Future<void> pull(TimeInterval timeInterval, int channel) => _asyncSafe(
+  Future<void> pull(TimeInterval interval, int channelIndex) => _asyncSafe(
         () async {
           assert(!isManualMode!);
           final schedule = await channels;
-          // TODO: ensure query is without any errors (test on cached schedule)
-          // TODO: update cached schedule
+
+          late final List<TimeInterval> intervals;
+          try {
+            intervals = schedule[channelIndex];
+          } catch (e) {
+            throw InvalidChannelIndex();
+          }
+
+          if (!interval.isCorrect) {
+            throw IncorrectTimeInterval();
+          }
+
+          if (!intervals.contains(interval)) {
+            return; // ignore if there is nothing to delete
+          }
+
+          await sendRaw('pull $interval from $channelIndex');
+          intervals.remove(interval);
         },
       );
 }

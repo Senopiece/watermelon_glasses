@@ -12,7 +12,7 @@ class Time {
 
   String get hm => '$padHour:$padMinute';
 
-  Time(int seconds) : _seconds = seconds % (86400);
+  Time(int seconds) : _seconds = seconds % 86400;
   factory Time.fromHMS(int h, int m, int s) => Time(h * 3600 + m * 60 + s);
   factory Time.now() {
     final now = DateTime.now();
@@ -24,4 +24,20 @@ class Time {
 
   @override
   String toString() => '$padHour:$padMinute:$padSecond';
+
+  bool operator >=(Time other) {
+    return _seconds >= other._seconds;
+  }
+
+  bool operator >(Time other) {
+    return _seconds > other._seconds;
+  }
+
+  @override
+  bool operator ==(covariant Time other) {
+    return _seconds == other._seconds;
+  }
+
+  @override
+  int get hashCode => _seconds;
 }
