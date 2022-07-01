@@ -6,7 +6,7 @@ class Time {
   int get minute => (_seconds ~/ 60) % 60;
   int get second => (_seconds % 60);
 
-  String get padHour => hour.toString().padLeft(2, '0');
+  String get padHour => hour.toString();
   String get padMinute => minute.toString().padLeft(2, '0');
   String get padSecond => second.toString().padLeft(2, '0');
 
