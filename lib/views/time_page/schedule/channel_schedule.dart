@@ -7,11 +7,13 @@ import 'channel_schedule/add_button.dart';
 class ChannelSchedule extends StatelessWidget {
   final List<TimeInterval> schedule;
   final VoidCallback addButtonPressed;
+  final void Function(TimeInterval data) onElementLongPress;
 
   const ChannelSchedule({
     Key? key,
     required this.schedule,
     required this.addButtonPressed,
+    required this.onElementLongPress,
   }) : super(key: key);
 
   @override
@@ -20,7 +22,10 @@ class ChannelSchedule extends StatelessWidget {
     list.addAll(
       schedule
           .map(
-            (e) => TimeIntervalBox(timeInterval: e),
+            (e) => TimeIntervalBox(
+              timeInterval: e,
+              onLongPress: () => onElementLongPress(e),
+            ),
           )
           .toList(),
     );

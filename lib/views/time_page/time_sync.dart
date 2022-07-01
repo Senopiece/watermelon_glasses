@@ -10,26 +10,31 @@ class TimeSync extends GetView<TimeSyncController> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: const EdgeInsets.only(left: 10),
       width: 200,
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: Colors.black,
-        ),
-        borderRadius: const BorderRadius.all(Radius.circular(10)),
-      ),
+      height: 50,
       // TODO: beautifully animate when data becomes rendered
       child: GetBuilder<TimeSyncController>(
         builder: (controller) {
           final row = <Widget>[
             Text(
               style: controller.isUnsynced
-                  ? const TextStyle(color: Colors.red)
-                  : null,
+                  ? const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red,
+                    )
+                  : const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
               controller.time.toString(),
             )
           ];
           if (controller.isUnsynced) {
+            row.add(
+              const SizedBox(width: 8),
+            );
             row.add(
               ElevatedButton(
                 onPressed: controller.sync,
@@ -38,7 +43,6 @@ class TimeSync extends GetView<TimeSyncController> {
             );
           }
           return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: row,
           );
         },

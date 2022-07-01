@@ -13,7 +13,14 @@ class ScheduleController extends GetxController {
   Watermelon get watermelon => Get.find<TimePageController>().watermelon!;
   List<List<TimeInterval>> get channels => watermelon.immediateChannels;
 
-  void addTimeInterval(int index) {
+  void addTimeInterval(int channel) {
     // TODO: pop a dialog to add new interval
+    print(channel);
+  }
+
+  void removeTimeInterval(int channel, TimeInterval interval) {
+    // TODO: ask user to confirm or dismiss action
+    print(channel);
+    print(interval);
   }
 }

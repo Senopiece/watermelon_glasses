@@ -18,44 +18,45 @@ class Schedule extends GetView<ScheduleController> {
             child: Text('no channels'),
           );
         }
-        int index = 0;
-        return ListView(
-          children: controller.channels
-              .map(
-                (e) => Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 8, 0, 8),
-                      child: Container(
-                        width: 50,
-                        height: 50,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.black,
-                          ),
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(10)),
-                        ),
-                        child: Text(
-                          '${++index}',
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
+        return ListView.separated(
+          separatorBuilder: (context, index) => const Divider(),
+          itemCount: controller.channels.length,
+          itemBuilder: (context, channelIndex) {
+            return Row(
+              children: [
+                // leading number
+                Container(
+                  width: 50,
+                  height: 50,
+                  margin: const EdgeInsets.only(left: 10),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.black,
                     ),
-                    Expanded(
-                      child: ChannelSchedule(
-                        schedule: e,
-                        addButtonPressed: () {},
-                      ),
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
+                  ),
+                  child: Text(
+                    '${channelIndex + 1}',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
                     ),
-                  ],
+                  ),
                 ),
-              )
-              .toList(),
+                // horizontally scrollable channel schedule
+                Expanded(
+                  child: ChannelSchedule(
+                    schedule: controller.channels[channelIndex],
+                    addButtonPressed: () =>
+                        controller.addTimeInterval(channelIndex),
+                    onElementLongPress: (elementData) => controller
+                        .removeTimeInterval(channelIndex, elementData),
+                  ),
+                ),
+              ],
+            );
+          },
         );
       },
     );

@@ -3,28 +3,21 @@ import 'package:watermelon_glasses/datatypes/time_interval.dart';
 
 class TimeIntervalBox extends StatelessWidget {
   final TimeInterval timeInterval;
-
-  // TODO: long tap invokes dialog that asks if you want to delete this interval
+  final VoidCallback onLongPress;
 
   const TimeIntervalBox({
     Key? key,
     required this.timeInterval,
+    required this.onLongPress,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: Container(
-        width: 145,
-        height: 50,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: Colors.black,
-          ),
-          borderRadius: const BorderRadius.all(Radius.circular(10)),
-        ),
+      padding: const EdgeInsets.only(left: 10),
+      child: ElevatedButton(
+        onPressed: () {},
+        onLongPress: onLongPress,
         child: Text(
           timeInterval.toString(),
           style: const TextStyle(
