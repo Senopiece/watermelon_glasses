@@ -33,7 +33,7 @@ class Watermelon {
 
   Time? _deviceTime;
   Future<Time>? _deviceTimeFuture;
-  bool _tick = true;
+  bool _tick = true; // TODO: do not use ticker, but DateTime.now() with shift
 
   List<List<TimeInterval>>? _channels;
   Future<List<List<TimeInterval>>>? _channelsFuture;
