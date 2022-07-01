@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:watermelon_glasses/datatypes/rrc.dart';
+import 'package:watermelon_glasses/abstracts/rrc.dart';
 
 /// request-response connection
 class DelegateRRC extends RRC {

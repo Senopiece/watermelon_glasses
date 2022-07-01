@@ -20,7 +20,7 @@ class Time {
   }
 
   Time advance(int seconds) => Time(_seconds + seconds);
-  int diff(Time time) => (time._seconds - _seconds).abs();
+  int diff(Time time) => time._seconds - _seconds;
 
   @override
   String toString() => '$padHour:$padMinute:$padSecond';

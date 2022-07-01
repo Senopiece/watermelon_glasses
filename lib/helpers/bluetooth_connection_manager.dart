@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
-import 'package:watermelon_glasses/datatypes/rrc.dart';
+import 'package:watermelon_glasses/abstracts/rrc.dart';
 
 import 'delegate_rrc.dart';
 import 'listenable.dart';

@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:get/get.dart';
 import 'package:watermelon_glasses/controllers/bluetooth_page_controller.dart';
-import 'package:watermelon_glasses/datatypes/bluetooth_connection_manager.dart';
-import 'package:watermelon_glasses/datatypes/listenable.dart';
-import 'package:watermelon_glasses/datatypes/watermelon.dart';
+import 'package:watermelon_glasses/helpers/bluetooth_connection_manager.dart';
+import 'package:watermelon_glasses/helpers/listenable.dart';
+import 'package:watermelon_glasses/helpers/watermelon.dart';
 
 class ConnectionPageController extends GetxController {
   final BluetoothDevice device;

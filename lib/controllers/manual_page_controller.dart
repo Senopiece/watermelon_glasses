@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:watermelon_glasses/datatypes/bluetooth_connection_manager.dart';
-import 'package:watermelon_glasses/datatypes/watermelon.dart';
+import 'package:watermelon_glasses/helpers/bluetooth_connection_manager.dart';
+import 'package:watermelon_glasses/helpers/watermelon.dart';
 
 import 'connection_page_controller.dart';
 

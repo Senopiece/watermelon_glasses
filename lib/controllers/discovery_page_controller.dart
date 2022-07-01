@@ -68,12 +68,11 @@ class DiscoveryPageController extends GetxController {
             results.add(r);
           }
         },
+        onDone: () {
+          isDiscovering = false;
+        },
+        cancelOnError: true,
       );
-
-      // make sure done to free after it's done
-      discovery!.onDone(() {
-        isDiscovering = false;
-      });
     });
   }
 }

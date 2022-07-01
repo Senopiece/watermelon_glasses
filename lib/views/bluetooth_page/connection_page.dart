@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:watermelon_glasses/controllers/connection_page_controller.dart';
-import 'package:watermelon_glasses/datatypes/bluetooth_connection_manager.dart';
+import 'package:watermelon_glasses/helpers/bluetooth_connection_manager.dart';
 
 class ConnectionPage extends GetView<ConnectionPageController> {
   const ConnectionPage({Key? key}) : super(key: key);

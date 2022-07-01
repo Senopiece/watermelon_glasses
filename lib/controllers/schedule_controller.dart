@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:watermelon_glasses/datatypes/Time.dart';
 import 'package:watermelon_glasses/datatypes/time_interval.dart';
-import 'package:watermelon_glasses/datatypes/watermelon.dart';
+import 'package:watermelon_glasses/helpers/watermelon.dart';
 
 import 'time_page_controller.dart';
 

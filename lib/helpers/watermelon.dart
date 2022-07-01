@@ -3,9 +3,9 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'Time.dart';
-import 'rrc.dart';
-import 'time_interval.dart';
+import '../datatypes/Time.dart';
+import '../abstracts/rrc.dart';
+import '../datatypes/time_interval.dart';
 
 // TODO: versioning of protocols support
 
@@ -23,6 +23,17 @@ class Task<T> {
   Task(this.f, this.c);
 }
 
+class TimePick {
+  final Time picked;
+  final DateTime when;
+
+  Duration get elapsedSincePick => DateTime.now().difference(when);
+
+  TimePick(this.picked, this.when);
+
+  factory TimePick.makePick(Time picked) => TimePick(picked, DateTime.now());
+}
+
 /// wrapper over BluetoothConnection to support watermelon commands,
 /// see https://github.com/Senopiece/watermelon/blob/main/README.md
 class Watermelon {
@@ -31,9 +42,8 @@ class Watermelon {
   bool? _isManualMode = false;
   bool? get isManualMode => _isManualMode;
 
-  Time? _deviceTime;
+  TimePick? _deviceTimePick;
   Future<Time>? _deviceTimeFuture;
-  bool _tick = true; // TODO: do not use ticker, but DateTime.now() with shift
 
   List<List<TimeInterval>>? _channels;
   Future<List<List<TimeInterval>>>? _channelsFuture;
@@ -62,22 +72,12 @@ class Watermelon {
         }
       },
     );
-
-    // ticker
-    Future(
-      () async {
-        await Future.delayed(const Duration(seconds: 1));
-        while (_tick) {
-          _deviceTime = _deviceTime?.advance(1);
-          await Future.delayed(const Duration(seconds: 1));
-        }
-      },
-    );
   }
 
   /// use it only if you sure that the time was already cached
-  Time get immediateDeviceTime => _deviceTime!;
-  bool get canGetImmediateDeviceTime => _deviceTime != null;
+  Time get immediateDeviceTime => _deviceTimePick!.picked
+      .advance(_deviceTimePick!.elapsedSincePick.inSeconds);
+  bool get canGetImmediateDeviceTime => _deviceTimePick != null;
 
   /// slow on the first access, immediate after
   /// uses a dynamically changing cache,
@@ -94,22 +94,22 @@ class Watermelon {
   ///
   /// Note that usage of this function is more preferable then [getTime]
   Future<Time> get deviceTime {
-    assert(_deviceTimeFuture == null || _deviceTime == null);
+    assert(_deviceTimeFuture == null || _deviceTimePick == null);
 
     // if in auto sync state
-    if (_deviceTime != null) return Future(() => _deviceTime!);
+    if (_deviceTimePick != null) return Future(() => immediateDeviceTime);
 
     // create new future to fill _deviceTime
     _deviceTimeFuture ??= Future(
       () async {
         try {
           // get the actual time (slow)
-          if (_deviceTime != null) throw Advance();
+          if (_deviceTimePick != null) throw Advance();
           final res = await getTime(); // may throw error
-          if (_deviceTime != null) throw Advance();
+          if (_deviceTimePick != null) throw Advance();
 
           // goto auto sync state
-          _deviceTime = res;
+          _deviceTimePick = TimePick.makePick(res);
 
           // return to the first awaiters
           _deviceTimeFuture = null;
@@ -117,10 +117,9 @@ class Watermelon {
         } on Advance {
           // so _deviceTime was set somewhere externally while we process
           _deviceTimeFuture = null;
-          return _deviceTime!;
+          return immediateDeviceTime;
         } catch (e) {
           // ensure not to cache fails
-          assert(_deviceTime == null);
           _deviceTimeFuture = null;
           rethrow;
         }
@@ -201,7 +200,6 @@ class Watermelon {
   void free() {
     flushActions();
     _actions = null;
-    _tick = false;
   }
 
   /// Note: if you added too many actions and don't want to do them all,
@@ -267,7 +265,7 @@ class Watermelon {
           assert(!isManualMode!);
           await sendRaw(
               "set time to ${time.hour}:${time.minute}:${time.second}");
-          _deviceTime = time;
+          _deviceTimePick = TimePick.makePick(time);
         },
       );
 
