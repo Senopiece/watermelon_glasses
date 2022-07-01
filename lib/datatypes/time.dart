@@ -10,6 +10,8 @@ class Time {
   String get padMinute => minute.toString().padLeft(2, '0');
   String get padSecond => second.toString().padLeft(2, '0');
 
+  String get hm => '$padHour:$padMinute';
+
   Time(int seconds) : _seconds = seconds % (86400);
   factory Time.fromHMS(int h, int m, int s) => Time(h * 3600 + m * 60 + s);
   factory Time.now() {

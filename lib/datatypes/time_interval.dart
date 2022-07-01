@@ -19,4 +19,7 @@ class TimeInterval {
     }
     return TimeInterval(boundaries[0], boundaries[1]);
   }
+
+  @override
+  String toString() => '${startTime.hm} - ${endTime.hm}';
 }
