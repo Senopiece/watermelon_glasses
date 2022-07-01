@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:watermelon_glasses/controllers/time_sync_controller.dart';
 
 /// NOTE: this widget requires TimePageController to have `watermelon != null`
+/// and the watermelon must have cached deviceTime
 class TimeSync extends GetView<TimeSyncController> {
   const TimeSync({Key? key}) : super(key: key);
 
@@ -18,8 +19,8 @@ class TimeSync extends GetView<TimeSyncController> {
         borderRadius: const BorderRadius.all(Radius.circular(10)),
       ),
       // TODO: beautifully animate when data becomes rendered
-      child: Obx(
-        () {
+      child: GetBuilder<TimeSyncController>(
+        builder: (controller) {
           final row = <Widget>[
             Text(
               style: controller.isUnsynced
