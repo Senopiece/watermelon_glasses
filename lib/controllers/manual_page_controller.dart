@@ -95,6 +95,8 @@ class ManualPageController extends GetxController {
           _instantiateWatermelon();
         },
       );
+    } else {
+      connecting = false;
     }
   }
 
