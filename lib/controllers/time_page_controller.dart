@@ -21,9 +21,12 @@ class TimePageController extends GetxController {
 
   /// NOTE: ensure connectionController is not null
   void _instantiateWatermelon() {
-    connecting =
-        connectionController!.currentState == ConnectionSate.connecting;
     watermelon = connectionController!.getWatermelon;
+    if (watermelon != null) {
+      connecting = !(watermelon!.canGetImmediateDeviceTime);
+    } else {
+      connecting = connectionController!.currentState is Connecting;
+    }
     watermelon?.exitManualMode(); // ensure auto mode
   }
 
@@ -57,6 +60,8 @@ class TimePageController extends GetxController {
           _instantiateWatermelon();
         },
       );
+    } else {
+      connecting = false;
     }
   }
 

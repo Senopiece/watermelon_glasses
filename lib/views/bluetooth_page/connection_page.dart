@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:watermelon_glasses/controllers/connection_page_controller.dart';
+import 'package:watermelon_glasses/datatypes/bluetooth_connection_manager.dart';
 
 class ConnectionPage extends GetView<ConnectionPageController> {
   const ConnectionPage({Key? key}) : super(key: key);
@@ -10,14 +11,14 @@ class ConnectionPage extends GetView<ConnectionPageController> {
     return GetBuilder<ConnectionPageController>(
       builder: (controller) {
         late final Text label;
-        switch (controller.currentState) {
-          case ConnectionSate.connecting:
+        switch (controller.currentState.runtimeType) {
+          case Connecting:
             label = const Text('connecting');
             break;
-          case ConnectionSate.connected:
+          case Connected:
             label = const Text('connected');
             break;
-          case ConnectionSate.disconnected:
+          case Disconnected:
             label = const Text('disconnected');
             break;
           default:
@@ -32,7 +33,7 @@ class ConnectionPage extends GetView<ConnectionPageController> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: (controller.currentState == ConnectionSate.connected)
+                  color: (controller.currentState is Connected)
                       ? Colors.green
                       : null,
                 ),
@@ -41,7 +42,7 @@ class ConnectionPage extends GetView<ConnectionPageController> {
                 'Address: ${controller.device.address}',
               ),
               label,
-              (controller.currentState == ConnectionSate.connecting)
+              (controller.currentState is Connecting)
                   ? const Expanded(
                       child: Center(
                         child: CircularProgressIndicator(),

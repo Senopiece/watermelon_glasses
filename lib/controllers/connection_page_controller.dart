@@ -7,8 +7,6 @@ import 'package:watermelon_glasses/datatypes/bluetooth_connection_manager.dart';
 import 'package:watermelon_glasses/datatypes/listenable.dart';
 import 'package:watermelon_glasses/datatypes/watermelon.dart';
 
-enum ConnectionSate { connecting, connected, disconnected }
-
 class ConnectionPageController extends GetxController {
   final BluetoothDevice device;
   final BluetoothConnectionManager _connector;
@@ -16,30 +14,24 @@ class ConnectionPageController extends GetxController {
       _statesStreamListener;
   Watermelon? _watermelon;
 
-  final _connectionStateRetranslator =
-      StreamController<BluetoothConnectionManagerState>.broadcast();
-
   /// retranslation of _connector.statesStream
   /// reasoning:
   /// 1) unbind references for garbage collection
-  /// 2) retranslate safe connection if it's [Connected] state
-  Stream<BluetoothConnectionManagerState> get statesStream =>
-      _connectionStateRetranslator.stream;
+  /// 2) retranslate state [Connected] only after done some work on it
+  final _state = Listenable<BluetoothConnectionManagerState>(Disconnected());
+  BluetoothConnectionManagerState get currentState => _state.data;
+  Stream<BluetoothConnectionManagerState> get statesStream => _state.stream;
 
-  Watermelon? get getWatermelon => _watermelon;
+  void _updateState(BluetoothConnectionManagerState newState) {
+    _state.data = newState;
 
-  ConnectionSate get currentState {
-    switch (_connector.currentState.runtimeType) {
-      case Connected:
-        return ConnectionSate.connected;
-      case Connecting:
-        return ConnectionSate.connecting;
-      case Disconnected:
-        return ConnectionSate.disconnected;
-      default:
-        throw TypeError();
-    }
+    // update view as it must display the same state
+    update();
   }
+
+  /// hide watermelon in case it is still occupied
+  Watermelon? get getWatermelon =>
+      (currentState is Connected) ? _watermelon : null;
 
   ConnectionPageController(this.device)
       : _connector = BluetoothConnectionManager(device.address);
@@ -60,7 +52,6 @@ class ConnectionPageController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _connector.connect();
     _statesStreamListener = _connector.statesStream.listen(
       (newState) {
         if (newState is Connected) {
@@ -82,7 +73,7 @@ class ConnectionPageController extends GetxController {
 
               // retranslate state after all the work of this class is done,
               // so others can pick it up safely
-              _connectionStateRetranslator.add(newState);
+              _updateState(newState);
             },
           );
         } else {
@@ -90,13 +81,11 @@ class ConnectionPageController extends GetxController {
           _watermelon?.free();
           _watermelon = null;
 
-          // retranslate
-          _connectionStateRetranslator.add(newState);
+          // retranslate immediately
+          _updateState(newState);
         }
-
-        // update view
-        update();
       },
     );
+    _connector.connect();
   }
 }

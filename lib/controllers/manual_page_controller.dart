@@ -49,8 +49,7 @@ class ManualPageController extends GetxController {
 
   /// NOTE: ensure connectionController is not null
   void _instantiateWatermelon() {
-    connecting =
-        connectionController!.currentState == ConnectionSate.connecting;
+    connecting = connectionController!.currentState is Connecting;
     watermelon = connectionController!.getWatermelon;
 
     if (watermelon != null) {
