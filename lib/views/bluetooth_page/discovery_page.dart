@@ -12,12 +12,9 @@ class DiscoveryPage extends GetView<DiscoveryPageController> {
           ? const Center(child: CircularProgressIndicator())
           : Scaffold(
               floatingActionButton: IconButton(
-                onPressed: () {
-                  // TODO: make it via smth like "pull down to reload"
-                  if (!controller.isDiscovering) controller.startDiscovery();
-                },
+                // TODO: make it via smth like "pull down to reload"
+                onPressed: controller.startDiscovery,
                 icon: const Icon(Icons.refresh_outlined),
-                color: controller.isDiscovering ? Colors.grey : Colors.green,
                 iconSize: 40,
               ),
               body: Stack(
