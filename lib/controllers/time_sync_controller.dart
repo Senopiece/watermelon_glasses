@@ -8,9 +8,7 @@ import 'time_page_controller.dart';
 /// so like the connection setup into not manual mode etc...
 class TimeSyncController extends GetxController {
   Time get time => watermelon!.immediateDeviceTime;
-  String get text => '${time.hour}:${time.minute}:${time.second}';
   bool get isUnsynced => Time.now().diff(time) > 5;
-
   Watermelon? get watermelon => Get.find<TimePageController>().watermelon;
 
   bool _tick = true;
@@ -34,10 +32,9 @@ class TimeSyncController extends GetxController {
     // ticker
     Future(
       () async {
-        await Future.delayed(const Duration(seconds: 1));
         while (_tick) {
           update();
-          await Future.delayed(const Duration(seconds: 1));
+          await Future.delayed(const Duration(milliseconds: 100));
         }
       },
     );
