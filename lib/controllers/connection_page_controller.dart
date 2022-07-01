@@ -63,17 +63,21 @@ class ConnectionPageController extends GetxController {
           // so it further can be accessed immediately
           Future(
             () async {
-              // ensure no manual mode for the next invocations
-              await _watermelon!.exitManualMode();
+              try {
+                // ensure no manual mode for the next invocations
+                await _watermelon!.exitManualMode();
 
-              // invoke this things firstly,
-              // so they will be cached for the further fast access
-              await _watermelon!.channelsCount;
-              await _watermelon!.deviceTime;
+                // invoke this things firstly,
+                // so they will be cached for the further fast access
+                await _watermelon!.channelsCount;
+                await _watermelon!.deviceTime;
 
-              // retranslate state after all the work of this class is done,
-              // so others can pick it up safely
-              _updateState(newState);
+                // retranslate state after all the work of this class is done,
+                // so others can pick it up safely
+                _updateState(newState);
+              } catch (e) {
+                (_connector.currentState as Connected).close();
+              }
             },
           );
         } else {
