@@ -35,6 +35,9 @@ class Watermelon {
   Future<Time>? _deviceTimeFuture;
   bool _tick = true;
 
+  List<List<TimeInterval>>? _channels;
+  Future<List<List<TimeInterval>>>? _channelsFuture;
+
   Watermelon(this.connection) {
     // queue processor
     Future(
@@ -74,7 +77,6 @@ class Watermelon {
 
   /// use it only if you sure that the time was already cached
   Time get immediateDeviceTime => _deviceTime!;
-
   bool get canGetImmediateDeviceTime => _deviceTime != null;
 
   /// slow on the first access, immediate after
@@ -130,7 +132,18 @@ class Watermelon {
     return _deviceTimeFuture!;
   }
 
-  Future<int>? _channelsCount;
+  /// slow on the first access, immediate after
+  ///
+  /// Note that if it throws on the first access,
+  /// the second will retry the bluetooth call, if the second throws,
+  /// the third will act without cache and so on until any successful operation
+  ///
+  /// Important: ensure mode is not manual,
+  /// before calling this thing the first time,
+  /// otherwise the returned future will newer complete
+  ///
+  /// Note that usage of this function is more preferable then [channels]
+  Future<int> get channelsCount async => (await channels).length;
 
   /// slow on the first access, immediate after
   ///
@@ -141,19 +154,41 @@ class Watermelon {
   /// Important: ensure mode is not manual,
   /// before calling this thing the first time,
   /// otherwise the returned future will newer complete
-  Future<int> get channelsCount {
-    _channelsCount ??= Future(
+  ///
+  /// Note that usage of this function is more preferable then [getSchedule]
+  Future<List<List<TimeInterval>>> get channels {
+    assert(_channelsFuture == null || _channels == null);
+
+    // if in auto sync state
+    if (_channels != null) return Future(() => _channels!);
+
+    // create new future to fill _channels
+    _channelsFuture ??= Future(
       () async {
         try {
-          return (await getSchedule()).length;
+          // get the actual schedule (slow)
+          assert(_channels == null);
+          final res = await getSchedule(); // may throw error
+          assert(_channels == null);
+
+          // goto auto sync state
+          _channels = res;
+
+          // return to the first awaiters
+          _channelsFuture = null;
+          return res;
         } catch (e) {
           // ensure not to cache fails
-          _channelsCount = null;
+          assert(_channels == null);
+          _channelsFuture = null;
           rethrow;
         }
       },
     );
-    return _channelsCount!;
+
+    // if in calling for actual schedule state,
+    // returns the same future as the first invocation
+    return _channelsFuture!;
   }
 
   Queue<Task>? _actions = Queue<Task>();
@@ -276,6 +311,24 @@ class Watermelon {
           }
 
           return res;
+        },
+      );
+
+  Future<void> put(TimeInterval timeInterval, int channel) => _asyncSafe(
+        () async {
+          assert(!isManualMode!);
+          final schedule = await channels;
+          // TODO: ensure query is without any errors (test on cached schedule)
+          // TODO: update cached schedule
+        },
+      );
+
+  Future<void> pull(TimeInterval timeInterval, int channel) => _asyncSafe(
+        () async {
+          assert(!isManualMode!);
+          final schedule = await channels;
+          // TODO: ensure query is without any errors (test on cached schedule)
+          // TODO: update cached schedule
         },
       );
 }
