@@ -3,10 +3,9 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'Time.dart';
 import 'rrc.dart';
 import 'time_interval.dart';
-
-// TODO: custom DateTime with period of one day
 
 // TODO: versioning of protocols support
 
@@ -32,8 +31,8 @@ class Watermelon {
   bool? _isManualMode = false;
   bool? get isManualMode => _isManualMode;
 
-  DateTime? _deviceTime;
-  Future<DateTime>? _deviceTimeFuture;
+  Time? _deviceTime;
+  Future<Time>? _deviceTimeFuture;
   bool _tick = true;
 
   Watermelon(this.connection) {
@@ -65,7 +64,7 @@ class Watermelon {
       () async {
         await Future.delayed(const Duration(seconds: 1));
         while (_tick) {
-          _deviceTime = _deviceTime?.add(const Duration(seconds: 1));
+          _deviceTime = _deviceTime?.advance(1);
           await Future.delayed(const Duration(seconds: 1));
         }
       },
@@ -73,7 +72,7 @@ class Watermelon {
   }
 
   /// use it only if you sure that the time was already cached
-  DateTime get immediateDeviceTime => _deviceTime!;
+  Time get immediateDeviceTime => _deviceTime!;
 
   /// slow on the first access, immediate after
   /// uses a dynamically changing cache,
@@ -89,7 +88,7 @@ class Watermelon {
   /// otherwise the returned future will newer complete
   ///
   /// Note that usage of this function is more preferable then [getTime]
-  Future<DateTime> get deviceTime {
+  Future<Time> get deviceTime {
     assert(_deviceTimeFuture == null || _deviceTime == null);
 
     // if in auto sync state
@@ -221,7 +220,7 @@ class Watermelon {
         },
       );
 
-  Future<void> setTime(DateTime time) => _asyncSafe(
+  Future<void> setTime(Time time) => _asyncSafe(
         () async {
           assert(!isManualMode!);
           await sendRaw(
@@ -230,7 +229,7 @@ class Watermelon {
         },
       );
 
-  Future<DateTime> getTime() => _asyncSafe(
+  Future<Time> getTime() => _asyncSafe(
         () async {
           assert(!isManualMode!);
           await sendRaw("get time");
@@ -238,7 +237,7 @@ class Watermelon {
           final h = int.parse(parts[0]);
           final m = int.parse(parts[1]);
           final s = int.parse(parts[2]);
-          return DateTime(2000, 1, 1, h, m, s);
+          return Time.fromHMS(h, m, s);
         },
       );
 
