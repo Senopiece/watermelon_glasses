@@ -6,6 +6,10 @@ class Time {
   int get minute => (_seconds ~/ 60) % 60;
   int get second => (_seconds % 60);
 
+  String get padHour => hour.toString().padLeft(2, '0');
+  String get padMinute => minute.toString().padLeft(2, '0');
+  String get padSecond => second.toString().padLeft(2, '0');
+
   Time(int seconds) : _seconds = seconds % (86400);
   factory Time.fromHMS(int h, int m, int s) => Time(h * 3600 + m * 60 + s);
   factory Time.now() {
@@ -15,4 +19,7 @@ class Time {
 
   Time advance(int seconds) => Time(_seconds + seconds);
   int diff(Time time) => (time._seconds - _seconds).abs();
+
+  @override
+  String toString() => '$padHour:$padMinute:$padSecond';
 }

@@ -26,7 +26,7 @@ class TimeSync extends GetView<TimeSyncController> {
               style: controller.isUnsynced
                   ? const TextStyle(color: Colors.red)
                   : null,
-              controller.text,
+              controller.time.toString(),
             )
           ];
           if (controller.isUnsynced) {
