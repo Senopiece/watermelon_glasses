@@ -6,6 +6,8 @@ import 'dart:typed_data';
 import 'rrc.dart';
 import 'time_interval.dart';
 
+// TODO: custom DateTime with period of one day
+
 // TODO: versioning of protocols support
 
 // TODO: check error response (eg listen to a responce)
@@ -71,6 +73,9 @@ class Watermelon {
   }
 
   /// slow on the first access, immediate after
+  /// uses a dynamically changing cache,
+  /// so next immediate returns would be
+  /// as correct as the honest invocation of [getTime]
   ///
   /// Note that if it throws on the first access,
   /// the second will retry the bluetooth call, if the second throws,
