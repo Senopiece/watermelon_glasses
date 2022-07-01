@@ -16,11 +16,17 @@ class ScheduleController extends GetxController {
   void addTimeInterval(int channel) {
     // TODO: pop a dialog to add new interval
     print(channel);
+    //update();
   }
 
   void removeTimeInterval(int channel, TimeInterval interval) {
-    // TODO: ask user to confirm or dismiss action
-    print(channel);
-    print(interval);
+    Get.defaultDialog(
+      title: "Are you sure you want to remove it?",
+      onConfirm: () async {
+        await watermelon.pull(interval, channel);
+        update();
+      },
+      onCancel: () {},
+    );
   }
 }
