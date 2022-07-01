@@ -12,6 +12,8 @@ import 'time_interval.dart';
 
 class Cancelled extends Error {}
 
+class Advance {}
+
 typedef FutureProducer<T> = Future<T> Function();
 
 class Task<T> {
@@ -28,43 +30,12 @@ class Watermelon {
   bool? _isManualMode = false;
   bool? get isManualMode => _isManualMode;
 
-  Future<int>? _channelsCount;
-
-  /// slow on the first access, immediate after
-  ///
-  /// Important: ensure manual mode is not manual,
-  /// before calling this thing the first time,
-  /// otherwise the returned future will newer complete
-  Future<int> get channelsCount {
-    _channelsCount ??= Future(
-      () async => (await getSchedule()).length,
-    );
-    return _channelsCount!;
-  }
-
-  Queue<Task>? _actions = Queue<Task>();
-
-  // TODO: cache set time/get time also
-
-  /// Important: call this before freeing the instance completely
-  void free() {
-    flushActions();
-    _actions = null;
-  }
-
-  /// Note: if you added too many actions and don't want to do them all,
-  /// you can call `flushActions()`,
-  /// it will complete all the pending with exception [Cancelled]
-  void flushActions() {
-    if (_actions != null) {
-      for (final action in _actions!) {
-        action.c.completeError(Cancelled());
-      }
-      _actions!.clear();
-    }
-  }
+  DateTime? _deviceTime;
+  Future<DateTime>? _deviceTimeFuture;
+  bool _tick = true;
 
   Watermelon(this.connection) {
+    // queue processor
     Future(
       () async {
         while (_actions != null) {
@@ -86,6 +57,114 @@ class Watermelon {
         }
       },
     );
+
+    // ticker
+    Future(
+      () async {
+        await Future.delayed(const Duration(seconds: 1));
+        while (_tick) {
+          _deviceTime = _deviceTime?.add(const Duration(seconds: 1));
+          await Future.delayed(const Duration(seconds: 1));
+        }
+      },
+    );
+  }
+
+  /// slow on the first access, immediate after
+  ///
+  /// Note that if it throws on the first access,
+  /// the second will retry the bluetooth call, if the second throws,
+  /// the third will act without cache and so on until any successful operation
+  ///
+  /// Important: ensure mode is not manual,
+  /// before calling this thing the first time,
+  /// otherwise the returned future will newer complete
+  ///
+  /// Note that usage of this function is more preferable then [getTime]
+  Future<DateTime> get deviceTime {
+    assert(_deviceTimeFuture == null || _deviceTime == null);
+
+    // if in auto sync state
+    if (_deviceTime != null) return Future(() => _deviceTime!);
+
+    // create new future to fill _deviceTime
+    _deviceTimeFuture ??= Future(
+      () async {
+        try {
+          // get the actual time (slow)
+          if (_deviceTime != null) throw Advance();
+          final res = await getTime(); // may throw error
+          if (_deviceTime != null) throw Advance();
+
+          // goto auto sync state
+          _deviceTime = res;
+
+          // return to the first awaiters
+          _deviceTimeFuture = null;
+          return res;
+        } on Advance {
+          // so _deviceTime was set somewhere externally while we process
+          _deviceTimeFuture = null;
+          return _deviceTime!;
+        } catch (e) {
+          // ensure not to cache fails
+          assert(_deviceTime == null);
+          _deviceTimeFuture = null;
+          rethrow;
+        }
+      },
+    );
+
+    // if in calling for actual time state,
+    // returns the same future as the first invocation
+    return _deviceTimeFuture!;
+  }
+
+  Future<int>? _channelsCount;
+
+  /// slow on the first access, immediate after
+  ///
+  /// Note that if it throws on the first access,
+  /// the second will retry the bluetooth call, if the second throws,
+  /// the third will act without cache and so on until any successful operation
+  ///
+  /// Important: ensure mode is not manual,
+  /// before calling this thing the first time,
+  /// otherwise the returned future will newer complete
+  Future<int> get channelsCount {
+    _channelsCount ??= Future(
+      () async {
+        try {
+          return (await getSchedule()).length;
+        } catch (e) {
+          // ensure not to cache fails
+          _channelsCount = null;
+          rethrow;
+        }
+      },
+    );
+    return _channelsCount!;
+  }
+
+  Queue<Task>? _actions = Queue<Task>();
+
+  /// Important: call this before freeing the instance completely
+  void free() {
+    flushActions();
+    _actions = null;
+    _tick = false;
+  }
+
+  /// Note: if you added too many actions and don't want to do them all,
+  /// you can call `flushActions()`,
+  /// it will complete all the pending with exception [Cancelled]
+  void flushActions() {
+    if (_actions != null) {
+      for (final action in _actions!) {
+        action.c.completeError(Cancelled());
+      }
+      _actions!.clear();
+    }
   }
 
   /// must use internally
@@ -139,6 +218,7 @@ class Watermelon {
           assert(!isManualMode!);
           await sendRaw(
               "set time to ${time.hour}:${time.minute}:${time.second}");
+          _deviceTime = time;
         },
       );
 
