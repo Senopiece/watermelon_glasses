@@ -72,6 +72,9 @@ class Watermelon {
     );
   }
 
+  /// use it only if you sure that the time was already cached
+  DateTime get immediateDeviceTime => _deviceTime!;
+
   /// slow on the first access, immediate after
   /// uses a dynamically changing cache,
   /// so next immediate returns would be
