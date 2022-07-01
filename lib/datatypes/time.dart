@@ -2,9 +2,9 @@
 class Time {
   final int _seconds;
 
-  get hour => (_seconds / 3600) % 24;
-  get minute => (_seconds / 60) % 60;
-  get second => (_seconds % 60);
+  int get hour => (_seconds ~/ 3600) % 24;
+  int get minute => (_seconds ~/ 60) % 60;
+  int get second => (_seconds % 60);
 
   Time(int seconds) : _seconds = seconds % (86400);
   factory Time.fromHMS(int h, int m, int s) => Time(h * 3600 + m * 60 + s);
