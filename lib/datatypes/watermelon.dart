@@ -50,6 +50,7 @@ class Watermelon {
 
           // do task
           try {
+            assert(connection.isBufferEmpty);
             final res = await nextTask.f();
             nextTask.c.complete(res);
           } catch (e) {

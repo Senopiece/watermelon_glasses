@@ -95,6 +95,8 @@ class Connected implements BluetoothConnectionManagerState {
           _connection.output.add(msg);
           await _connection.output.allSent;
         },
+        // isBufferEmpty
+        () => _buff.isEmpty,
       );
 
   Future<void> close() => _connection.close();

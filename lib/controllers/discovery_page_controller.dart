@@ -4,7 +4,6 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:get/get.dart';
 import 'package:watermelon_glasses/controllers/bluetooth_page_controller.dart';
 
-// 3) add isBufferEmpty rrc assert which redirects to crashanalytics
 // 4) on the auto page add buttons like the cli interface does,
 // also provide a plus button to the time picker which cannot allow you to pick incorrect time,
 // so we always expect empty output from the device

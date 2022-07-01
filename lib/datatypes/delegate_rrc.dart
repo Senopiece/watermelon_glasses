@@ -7,12 +7,16 @@ import 'package:watermelon_glasses/datatypes/rrc.dart';
 class DelegateRRC extends RRC {
   final Future<Uint8List> Function() input;
   final Future<void> Function(Uint8List) output;
+  final bool Function() bufferCheck;
 
-  DelegateRRC(this.input, this.output);
+  DelegateRRC(this.input, this.output, this.bufferCheck);
 
   @override
   Future<void> send(Uint8List msg) => output(msg);
 
   @override
   Future<Uint8List> get() => input();
+
+  @override
+  bool get isBufferEmpty => bufferCheck();
 }
