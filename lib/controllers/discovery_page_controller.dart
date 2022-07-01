@@ -71,6 +71,9 @@ class DiscoveryPageController extends GetxController {
         onDone: () {
           isDiscovering = false;
         },
+        onError: (e) {
+          isDiscovering = false;
+        },
         cancelOnError: true,
       );
     });
