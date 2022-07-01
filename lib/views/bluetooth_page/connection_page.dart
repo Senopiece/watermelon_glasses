@@ -28,7 +28,7 @@ class ConnectionPage extends GetView<ConnectionPageController> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Device Name: ${controller.device.address}',
+                'Device Name: ${controller.device.name}',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
