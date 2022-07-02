@@ -9,8 +9,6 @@ import '../datatypes/time_interval.dart';
 
 // TODO: versioning of protocols support
 
-// TODO: check error response (eg listen to a responce)
-
 class Cancelled extends Error {}
 
 class Advance {}

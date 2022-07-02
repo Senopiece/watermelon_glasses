@@ -5,17 +5,7 @@ import 'package:watermelon_glasses/controllers/connection_page_controller.dart';
 import 'package:watermelon_glasses/views/bluetooth_page/connection_page.dart';
 import 'package:watermelon_glasses/views/bluetooth_page/discovery_page.dart';
 
-// TODO: test bluetooth is not setup
-// TODO: test not bounded
-// TODO: test setup externally
 // TODO: use another device
-// TODO: too many devices connected error
-// TODO: check if the device was already connected but try to connect here
-// TODO: bluetooth is disabled or becomes disabled while scanning or conecting or connected
-
-// TODO: adapter turn off catch
-// TODO: device does not follow protocol catch
-// TODO: device disconnection catch
 
 /// controls switches between ConnectionPage and DiscoveryPage
 class BluetoothPageController extends GetxController {
