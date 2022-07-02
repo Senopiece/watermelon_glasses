@@ -4,7 +4,6 @@ import 'package:watermelon_glasses/datatypes/time_interval.dart';
 
 import 'time_picker.dart';
 
-// TODO: allow only correct time interval
 class TimeRangePicker extends StatefulWidget {
   final TimeInterval initial; // affects only initState
   final void Function(TimeInterval)? onChanged;
@@ -31,10 +30,15 @@ class _TimeRangePickerState extends State<TimeRangePicker> {
       child: Row(
         children: [
           TimePicker(
-            initialTime: widget.initial.startTime,
+            time: startTime,
             onChanged: (newStartTime) {
-              // no need to rebuild, my children have already updated
               startTime = newStartTime;
+
+              // sync endTime to always have correct interval
+              if (!(endTime > startTime)) {
+                endTime = startTime.advance(60);
+              }
+
               if (widget.onChanged != null) {
                 widget.onChanged!(TimeInterval(startTime, endTime));
               }
@@ -51,10 +55,12 @@ class _TimeRangePickerState extends State<TimeRangePicker> {
             ),
           ),
           TimePicker(
-            initialTime: widget.initial.endTime,
+            time: endTime,
             onChanged: (newEndTime) {
-              // no need to rebuild, my children have already updated
-              endTime = newEndTime;
+              if (newEndTime > startTime) {
+                endTime = newEndTime;
+              }
+
               if (widget.onChanged != null) {
                 widget.onChanged!(TimeInterval(startTime, endTime));
               }

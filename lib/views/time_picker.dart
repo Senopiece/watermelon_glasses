@@ -1,24 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:watermelon_glasses/datatypes/time.dart';
-import 'package:watermelon_glasses/datatypes/time_interval.dart';
 
-class TimePicker extends StatefulWidget {
-  final Time initialTime; // affects only initState
+class TimePicker extends StatelessWidget {
+  /// affects each rebuild, given as approve of value passed by onChanged
+  final Time time;
   final void Function(Time)? onChanged;
 
   const TimePicker({
     Key? key,
     this.onChanged,
-    required this.initialTime,
+    required this.time,
   }) : super(key: key);
-
-  @override
-  State<TimePicker> createState() => _TimePickerState();
-}
-
-class _TimePickerState extends State<TimePicker> {
-  late Time current;
 
   @override
   Widget build(BuildContext context) {
@@ -30,13 +23,11 @@ class _TimePickerState extends State<TimePicker> {
           minValue: 0,
           maxValue: 23,
           zeroPad: true,
-          value: current.hour,
+          value: time.hour,
           infiniteLoop: true,
           onChanged: (value) {
-            setState(() {
-              current = Time.fromHMS(value, current.minute, 0);
-              if (widget.onChanged != null) widget.onChanged!(current);
-            });
+            final current = Time.fromHMS(value, time.minute, time.second);
+            if (onChanged != null) onChanged!(current);
           },
         ),
         const Text(
@@ -51,23 +42,14 @@ class _TimePickerState extends State<TimePicker> {
           minValue: 0,
           maxValue: 59,
           zeroPad: true,
-          value: current.minute,
+          value: time.minute,
           infiniteLoop: true,
           onChanged: (value) {
-            setState(() {
-              current = Time.fromHMS(current.hour, value, 0);
-              if (widget.onChanged != null) widget.onChanged!(current);
-            });
+            final current = Time.fromHMS(time.hour, value, time.second);
+            if (onChanged != null) onChanged!(current);
           },
         ),
       ],
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    assert(widget.initialTime.second == 0);
-    current = widget.initialTime;
   }
 }
