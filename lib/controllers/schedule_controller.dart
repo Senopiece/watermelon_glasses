@@ -10,6 +10,8 @@ class ScheduleController extends GetxController {
   Watermelon get watermelon => Get.find<TimePageController>().watermelon!;
   List<List<TimeInterval>> get channels => watermelon.immediateChannels;
 
+  // TODO: close any dialogs when state is disconnected
+
   void addTimeInterval() {
     //update();
   }
