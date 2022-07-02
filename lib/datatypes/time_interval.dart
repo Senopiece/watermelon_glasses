@@ -1,4 +1,4 @@
-import 'Time.dart';
+import 'package:watermelon_glasses/datatypes/time.dart';
 
 class TimeInterval {
   final Time startTime;
