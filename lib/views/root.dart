@@ -18,9 +18,9 @@ class ApplicationRoot extends GetWidget<RootController> {
       ),
       body: child,
       bottomNavigationBar: Obx(
-            () => BottomNavigationBar(
+        () => BottomNavigationBar(
           currentIndex: controller.currentIndex,
-          items:  [
+          items: [
             BottomNavigationBarItem(
               icon: const Icon(Icons.bluetooth),
               label: "Bluetooth".tr,
