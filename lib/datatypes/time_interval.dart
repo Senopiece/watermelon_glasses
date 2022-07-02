@@ -23,7 +23,7 @@ class TimeInterval {
   bool get isCorrect => endTime > startTime;
 
   bool operator >(TimeInterval other) {
-    return startTime >= other.endTime;
+    return startTime > other.endTime;
   }
 
   @override
