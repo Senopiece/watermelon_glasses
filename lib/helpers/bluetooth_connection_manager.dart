@@ -81,13 +81,15 @@ class Connected implements BluetoothConnectionManagerState {
   RRC get rrc => DelegateRRC(
         // input (passed to DelegateRRC.get())
         () async {
-          // will block until buffer becomes filled
-          while (_buff.isEmpty) {
-            await Future.delayed(const Duration(milliseconds: 10));
-          }
+          // will block until buffer becomes filled to \n
           final tmp = <int>[];
-          tmp.addAll(_buff);
-          _buff.clear();
+          while (tmp.isEmpty || tmp.last != 10) {
+            while (_buff.isEmpty) {
+              await Future.delayed(const Duration(milliseconds: 10));
+            }
+            tmp.addAll(_buff);
+            _buff.clear();
+          }
           return Uint8List.fromList(tmp);
         },
         // output (passed to DelegateRRC.send())
