@@ -1,6 +1,10 @@
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:watermelon_glasses/controllers/add_interval_controller.dart';
 import 'package:watermelon_glasses/datatypes/time_interval.dart';
 import 'package:watermelon_glasses/helpers/watermelon.dart';
+import 'package:watermelon_glasses/views/time_page/dialogs/add_interval.dart';
 
 import 'time_page_controller.dart';
 
@@ -13,8 +17,35 @@ class ScheduleController extends GetxController {
 
   // TODO: close any dialogs when state is disconnected
 
-  void addTimeInterval() {
-    //update();
+  Future<void> _safeWatermelonAction(Future<void> action) async {
+    try {
+      await action;
+      update();
+    } catch (e) {
+      Fluttertoast.cancel();
+      Fluttertoast.showToast(
+        msg: "a command to watermelon failed",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+      // todo: be further handled by crashanalytics
+    }
+  }
+
+  void addTimeInterval() async {
+    dynamic ret = await Get.dialog(
+      const AddIntervalDialog(),
+    );
+    if (ret is ReturnData) {
+      for (final channelIndex in ret.channelsToPut) {
+        await _safeWatermelonAction(
+          watermelon.put(ret.interval, channelIndex),
+        );
+      }
+    }
   }
 
   // TODO: add edit dialog
@@ -27,9 +58,10 @@ class ScheduleController extends GetxController {
       title: "Approve action",
       middleText: 'Remove?',
       onConfirm: () async {
-        await watermelon.pull(interval, channel);
         Get.back();
-        update();
+        await _safeWatermelonAction(
+          watermelon.pull(interval, channel),
+        );
       },
       onCancel: () {},
     );

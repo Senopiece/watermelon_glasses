@@ -333,6 +333,19 @@ class Watermelon {
         },
       );
 
+  int? _findPutIndex(TimeInterval interval, List<TimeInterval> intervals) {
+    int i = 0;
+    for (i = 0; i != intervals.length; i++) {
+      if (intervals[i] > interval) break;
+    }
+
+    if ((i > 0) && !(interval > intervals[i - 1])) {
+      return null;
+    }
+
+    return i;
+  }
+
   Future<void> put(TimeInterval interval, int channelIndex) => _asyncSafe(
         () async {
           assert(!isManualMode!);
@@ -353,12 +366,8 @@ class Watermelon {
             throw ChannelScheduleOverflow();
           }
 
-          int i = 0;
-          for (i = 0; i != intervals.length; i++) {
-            if (intervals[i] > interval) break;
-          }
-
-          if ((i > 0) && !(interval > intervals[i - 1])) {
+          int? i = _findPutIndex(interval, intervals);
+          if (i == null) {
             throw IntervalIntersection();
           }
 
@@ -368,6 +377,21 @@ class Watermelon {
           intervals.insert(i, interval);
         },
       );
+
+  /// check for no interval intersections,
+  /// returns what channels can accept this interval
+  /// Note: requires [immediateChannels]
+  /// Note: there is not check of channel schedule capacity overflow
+  Iterable<int> putDoesNotIntersect(TimeInterval interval) sync* {
+    if (!interval.isCorrect) return;
+    int channelIndex = 0;
+    for (final channelSchedule in immediateChannels) {
+      if (_findPutIndex(interval, channelSchedule) != null) {
+        yield channelIndex;
+      }
+      channelIndex++;
+    }
+  }
 
   Future<void> pull(TimeInterval interval, int channelIndex) => _asyncSafe(
         () async {

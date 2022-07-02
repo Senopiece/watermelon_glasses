@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:watermelon_glasses/controllers/add_interval_controller.dart';
 import 'package:watermelon_glasses/controllers/schedule_controller.dart';
 import 'package:watermelon_glasses/controllers/time_page_controller.dart';
 import 'package:watermelon_glasses/controllers/time_sync_controller.dart';
@@ -11,5 +12,6 @@ final timePage = GetPage(
     Get.put(TimePageController());
     Get.lazyPut(() => TimeSyncController());
     Get.lazyPut(() => ScheduleController());
+    Get.lazyPut(() => AddIntervalDialogController(), fenix: true);
   }),
 );
