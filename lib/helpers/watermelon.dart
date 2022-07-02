@@ -364,7 +364,7 @@ class Watermelon {
 
           // TODO: too many channels working at the same time check (next versions of watermelon)
 
-          await sendRaw('put $interval to $channelIndex');
+          await sendRaw('put $interval to ${channelIndex + 1}');
           intervals.insert(i, interval);
         },
       );
@@ -389,7 +389,7 @@ class Watermelon {
             return; // ignore if there is nothing to delete
           }
 
-          await sendRaw('pull $interval from $channelIndex');
+          await sendRaw('pull $interval from ${channelIndex + 1}');
           intervals.remove(interval);
         },
       );
