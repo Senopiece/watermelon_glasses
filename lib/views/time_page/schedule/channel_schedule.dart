@@ -18,16 +18,20 @@ class ChannelSchedule extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      child: Row(
-        children: schedule
-            .map(
-              (e) => TimeIntervalBox(
-                timeInterval: e,
-                onPress: () => onElementShortPress(e),
-                onLongPress: () => onElementLongPress(e),
-              ),
-            )
-            .toList(),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Wrap(
+          spacing: 10,
+          children: schedule
+              .map(
+                (e) => TimeIntervalBox(
+                  timeInterval: e,
+                  onPress: () => onElementShortPress(e),
+                  onLongPress: () => onElementLongPress(e),
+                ),
+              )
+              .toList(),
+        ),
       ),
     );
   }

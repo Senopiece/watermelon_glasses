@@ -15,16 +15,13 @@ class TimeIntervalBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 10),
-      child: ElevatedButton(
-        onPressed: onPress,
-        onLongPress: onLongPress,
-        child: Text(
-          timeInterval.toString(),
-          style: const TextStyle(
-            fontSize: 15,
-          ),
+    return ElevatedButton(
+      onPressed: onPress,
+      onLongPress: onLongPress,
+      child: Text(
+        timeInterval.toString(),
+        style: const TextStyle(
+          fontSize: 15,
         ),
       ),
     );
