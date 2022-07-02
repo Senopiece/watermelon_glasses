@@ -24,9 +24,11 @@ class ScheduleController extends GetxController {
 
   void removeTimeInterval(int channel, TimeInterval interval) {
     Get.defaultDialog(
-      title: "Are you sure you want to remove it?",
+      title: "Approve action",
+      middleText: 'Remove?',
       onConfirm: () async {
         await watermelon.pull(interval, channel);
+        Get.back();
         update();
       },
       onCancel: () {},
