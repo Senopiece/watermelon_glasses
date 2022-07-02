@@ -9,6 +9,7 @@ import 'time_page_controller.dart';
 class ScheduleController extends GetxController {
   Watermelon get watermelon => Get.find<TimePageController>().watermelon!;
   List<List<TimeInterval>> get channels => watermelon.immediateChannels;
+  int get channelCapacity => watermelon.channelScheduleCapacity;
 
   // TODO: close any dialogs when state is disconnected
 

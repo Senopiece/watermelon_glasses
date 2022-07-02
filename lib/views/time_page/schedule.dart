@@ -22,6 +22,7 @@ class Schedule extends GetView<ScheduleController> {
           separatorBuilder: (context, index) => const Divider(),
           itemCount: controller.channels.length,
           itemBuilder: (context, channelIndex) {
+            final schedule = controller.channels[channelIndex];
             return Row(
               children: [
                 // leading number
@@ -36,18 +37,32 @@ class Schedule extends GetView<ScheduleController> {
                     ),
                     borderRadius: const BorderRadius.all(Radius.circular(10)),
                   ),
-                  child: Text(
-                    '${channelIndex + 1}',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  child: Stack(
+                    children: [
+                      Text(
+                        '${channelIndex + 1}',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 28, 0, 0),
+                        child: Text(
+                          '${schedule.length} / ${controller.channelCapacity}',
+                          style: const TextStyle(
+                            fontSize: 8,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 // horizontally scrollable channel schedule
                 Expanded(
                   child: ChannelSchedule(
-                    schedule: controller.channels[channelIndex],
+                    schedule: schedule,
                     onElementShortPress: (elementData) {},
                     onElementLongPress: (elementData) =>
                         controller.removeTimeInterval(channelIndex,
