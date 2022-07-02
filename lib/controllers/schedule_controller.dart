@@ -1,7 +1,4 @@
-import 'dart:async';
-
 import 'package:get/get.dart';
-import 'package:watermelon_glasses/datatypes/Time.dart';
 import 'package:watermelon_glasses/datatypes/time_interval.dart';
 import 'package:watermelon_glasses/helpers/watermelon.dart';
 
@@ -13,11 +10,14 @@ class ScheduleController extends GetxController {
   Watermelon get watermelon => Get.find<TimePageController>().watermelon!;
   List<List<TimeInterval>> get channels => watermelon.immediateChannels;
 
-  void addTimeInterval(int channel) {
-    // TODO: pop a dialog to add new interval
-    print(channel);
+  void addTimeInterval() {
     //update();
   }
+
+  // TODO: add edit dialog
+  // it's better to have long press to drag time interval between channels, and
+  // short press to enable edit/delete/cancel question dialog,
+  // which then redirects to edit or delete dialogs correspondingly
 
   void removeTimeInterval(int channel, TimeInterval interval) {
     Get.defaultDialog(

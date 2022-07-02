@@ -4,11 +4,13 @@ import 'package:watermelon_glasses/datatypes/time_interval.dart';
 class TimeIntervalBox extends StatelessWidget {
   final TimeInterval timeInterval;
   final VoidCallback onLongPress;
+  final VoidCallback onPress;
 
   const TimeIntervalBox({
     Key? key,
     required this.timeInterval,
     required this.onLongPress,
+    required this.onPress,
   }) : super(key: key);
 
   @override
@@ -16,7 +18,7 @@ class TimeIntervalBox extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 10),
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: onPress,
         onLongPress: onLongPress,
         child: Text(
           timeInterval.toString(),

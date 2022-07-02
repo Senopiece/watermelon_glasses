@@ -48,10 +48,10 @@ class Schedule extends GetView<ScheduleController> {
                 Expanded(
                   child: ChannelSchedule(
                     schedule: controller.channels[channelIndex],
-                    addButtonPressed: () =>
-                        controller.addTimeInterval(channelIndex),
-                    onElementLongPress: (elementData) => controller
-                        .removeTimeInterval(channelIndex, elementData),
+                    onElementShortPress: (elementData) {},
+                    onElementLongPress: (elementData) =>
+                        controller.removeTimeInterval(channelIndex,
+                            elementData), // TODO: see ScheduleController todo about add edit dialog
                   ),
                 ),
               ],
