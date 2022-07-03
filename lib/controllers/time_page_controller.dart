@@ -56,6 +56,13 @@ class TimePageController extends GetxController {
           // throw the prev descriptor
           watermelon = null;
 
+          // close dialogs when the device is not connected
+          if (newState is! Connected) {
+            while (Get.isDialogOpen!) {
+              Get.back();
+            }
+          }
+
           // if there is a new descriptor, pick it
           _instantiateWatermelon();
         },

@@ -14,8 +14,6 @@ class ScheduleController extends GetxController {
   List<List<TimeInterval>> get channels => watermelon.immediateChannels;
   int get channelCapacity => watermelon.channelScheduleCapacity;
 
-  // TODO: close any dialogs when state is disconnected
-
   /// will newer throw any errors,
   /// but rather redirect them to crashanalytics and show fail toast
   Future<void> _safeAction(Future<void> action) async {
