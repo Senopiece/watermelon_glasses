@@ -7,9 +7,9 @@ import 'time_page_controller.dart';
 /// NOTE: this class delegates all the context work to the TimePageController,
 /// so like the connection setup into not manual mode etc...
 class TimeSyncController extends GetxController {
-  Time get time => watermelon!.immediateDeviceTime;
+  Time get time => watermelon.immediateDeviceTime;
   bool get isUnsynced => Time.now().diff(time).abs() > 5;
-  Watermelon? get watermelon => Get.find<TimePageController>().watermelon;
+  Watermelon get watermelon => Get.find<TimePageController>().watermelon!;
 
   bool _tick = true;
   bool _syncing = false;
@@ -17,7 +17,7 @@ class TimeSyncController extends GetxController {
   void sync() {
     if (_syncing) return;
     _syncing = true;
-    watermelon!.setTime(Time.now()).whenComplete(
+    watermelon.setTime(Time.now()).whenComplete(
       () {
         _syncing = false;
         update();

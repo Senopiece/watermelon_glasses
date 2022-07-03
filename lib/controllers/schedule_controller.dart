@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:watermelon_glasses/controllers/add_interval_controller.dart';
 import 'package:watermelon_glasses/datatypes/time_interval.dart';
 import 'package:watermelon_glasses/helpers/watermelon.dart';
 import 'package:watermelon_glasses/views/time_page/dialogs/add_interval.dart';
@@ -17,7 +16,9 @@ class ScheduleController extends GetxController {
 
   // TODO: close any dialogs when state is disconnected
 
-  Future<void> _safeWatermelonAction(Future<void> action) async {
+  /// will newer throw any errors,
+  /// but rather redirect them to crashanalytics and show fail toast
+  Future<void> _safeAction(Future<void> action) async {
     try {
       await action;
       update();
@@ -35,17 +36,28 @@ class ScheduleController extends GetxController {
     }
   }
 
-  void addTimeInterval() async {
-    dynamic ret = await Get.dialog(
-      const AddIntervalDialog(),
+  void addTimeInterval() {
+    Get.dialog(
+      AddIntervalDialog(
+        matchesFilter: (TimeInterval interval) sync* {
+          for (final channelIndex in watermelon.putDoesNotIntersect(interval)) {
+            if (channels[channelIndex].length != channelCapacity) {
+              yield channelIndex;
+            }
+          }
+        },
+        submit: (TimeInterval interval, Iterable<int> selected) async {
+          // assert(selected is a subset of matchesFilter(interval))
+          Get.back();
+          for (final channelIndex in selected) {
+            await _safeAction(
+              watermelon.put(interval, channelIndex),
+            );
+          }
+        },
+        onCancel: () => Get.back(),
+      ),
     );
-    if (ret is ReturnData) {
-      for (final channelIndex in ret.channelsToPut) {
-        await _safeWatermelonAction(
-          watermelon.put(ret.interval, channelIndex),
-        );
-      }
-    }
   }
 
   // TODO: add edit dialog
@@ -59,7 +71,7 @@ class ScheduleController extends GetxController {
       middleText: 'Remove?',
       onConfirm: () async {
         Get.back();
-        await _safeWatermelonAction(
+        await _safeAction(
           watermelon.pull(interval, channel),
         );
       },
