@@ -1,0 +1,22 @@
+name: Format Code Base
+
+on:
+  push:
+    branches-ignore: [ main ]
+
+jobs:
+  build:
+    name: Format Code Base
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+    
+      - name: Install flutter
+        run: sudo snap install flutter --classic
+      
+      - name: Fetch dependencies
+        run: flutter pub get
+
+      - name: Format Code Base
+        run: flutter format --set-exit-if-changed .
