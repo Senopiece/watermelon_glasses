@@ -3,7 +3,7 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import '../datatypes/Time.dart';
+import '../datatypes/time.dart';
 import '../abstracts/rrc.dart';
 import '../datatypes/time_interval.dart';
 
