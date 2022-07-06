@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:watermelon_glasses/datatypes/Time.dart';
+import 'package:watermelon_glasses/datatypes/time.dart';
 import 'package:watermelon_glasses/helpers/watermelon.dart';
 
 import 'time_page_controller.dart';
