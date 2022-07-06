@@ -108,16 +108,24 @@ class Connected implements BluetoothConnectionManagerState {
   }
 
   RRC get rrc => DelegateRRC(
-        // input (passed to DelegateRRC.get())
-        () async {
-          // will block until buffer becomes filled to \n
+        // input (passed to DelegateRRC.getLine())
+        ({required Duration timeout}) async {
+          // will block until buffer becomes filled to the first income of \n
+          // will return the amount of data until the first \n,
+          // so buffer will be drained until the first income of \n
+          final start = DateTime.now();
           final tmp = <int>[];
           while (tmp.isEmpty || tmp.last != 10) {
             while (_buff.isEmpty) {
+              if (DateTime.now().difference(start) > timeout) {
+                throw TimeoutException('timeout');
+              }
               await Future.delayed(const Duration(milliseconds: 10));
             }
-            tmp.addAll(_buff);
-            _buff.clear();
+            while ((tmp.isEmpty || tmp.last != 10) && _buff.isNotEmpty) {
+              tmp.add(_buff.first);
+              _buff.removeAt(0);
+            }
           }
           return Uint8List.fromList(tmp);
         },
@@ -125,6 +133,13 @@ class Connected implements BluetoothConnectionManagerState {
         (Uint8List msg) async {
           _connection.output.add(msg);
           await _connection.output.allSent;
+        },
+        // drain
+        () {
+          final tmp = <int>[];
+          tmp.addAll(_buff);
+          _buff.clear();
+          return Uint8List.fromList(tmp);
         },
         // isBufferEmpty
         () => _buff.isEmpty,

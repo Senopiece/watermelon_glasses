@@ -77,7 +77,9 @@ class Watermelon {
           // do task
           try {
             if (!connection.isBufferEmpty) {
-              throw BufferNotEmptyError(await getRaw());
+              throw BufferNotEmptyError(
+                ascii.decode(connection.drainBuff()),
+              );
             }
             final res = await nextTask.f();
             nextTask.c.complete(res);
@@ -236,7 +238,19 @@ class Watermelon {
 
   /// must use internally
   Future<String> getRaw() async {
-    return ascii.decode(await connection.get());
+    return ascii.decode(await connection.getLine());
+  }
+
+  Future<String> getRawMultilines() async {
+    String tmp = '';
+    while (true) {
+      try {
+        tmp += await getRaw();
+      } on TimeoutException {
+        break;
+      }
+    }
+    return tmp;
   }
 
   /// internal protector
@@ -308,7 +322,7 @@ class Watermelon {
         () async {
           assert(!isManualMode!);
           await sendRaw("get shedule");
-          final lines = (await getRaw()).split('\n');
+          final lines = (await getRawMultilines()).split('\n');
           lines.removeLast();
 
           final res = <List<TimeInterval>>[];
