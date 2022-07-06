@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:watermelon_glasses/controllers/discovery_page_controller.dart';
 
+import 'bluetooth_disabled.dart';
+
 class DiscoveryPage extends GetView<DiscoveryPageController> {
   const DiscoveryPage({Key? key}) : super(key: key);
 
@@ -9,7 +11,7 @@ class DiscoveryPage extends GetView<DiscoveryPageController> {
   Widget build(BuildContext context) {
     return Obx(
       () => controller.isBlueEnabled == null
-          ? const Center(child: CircularProgressIndicator())
+          ? const BluetoothDisabled()
           : Scaffold(
               floatingActionButton: IconButton(
                 // TODO: make it via smth like "pull down to reload"
