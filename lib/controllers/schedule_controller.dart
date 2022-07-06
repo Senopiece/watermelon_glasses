@@ -3,6 +3,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:watermelon_glasses/datatypes/time_interval.dart';
 import 'package:watermelon_glasses/helpers/watermelon.dart';
+import 'package:watermelon_glasses/services/crashanalytics.dart';
 import 'package:watermelon_glasses/views/time_page/dialogs/add_interval.dart';
 
 import 'time_page_controller.dart';
@@ -20,7 +21,11 @@ class ScheduleController extends GetxController {
     try {
       await action;
       update();
-    } catch (e) {
+    } catch (e, s) {
+      // don't let it be a stopper, send report directly to crashanalytics
+      Get.find<Crashanalytics>().recordError(e, s);
+
+      // notify user by error toast
       Fluttertoast.cancel();
       Fluttertoast.showToast(
         msg: "a command to watermelon failed",
@@ -30,7 +35,6 @@ class ScheduleController extends GetxController {
         textColor: Colors.white,
         fontSize: 16.0,
       );
-      // todo: be further handled by crashanalytics
     }
   }
 
