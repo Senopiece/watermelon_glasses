@@ -8,17 +8,40 @@ import 'package:watermelon_glasses/abstracts/rrc.dart';
 import 'delegate_rrc.dart';
 import 'listenable.dart';
 
+class DisconnectionReason extends Error {
+  final dynamic internalReason;
+  DisconnectionReason(this.internalReason);
+}
+
+class FailedToConnect extends DisconnectionReason {
+  FailedToConnect(super.internalReason);
+}
+
+class StationaryDisconnection extends DisconnectionReason {
+  StationaryDisconnection() : super(null);
+}
+
+class NotInitialized extends DisconnectionReason {
+  NotInitialized() : super(null);
+}
+
+class CancelledConnection extends DisconnectionReason {
+  CancelledConnection() : super(null);
+}
+
 /// state machine over BluetoothConnection
 class BluetoothConnectionManager {
   final String address;
-  final _state = Listenable<BluetoothConnectionManagerState>(Disconnected());
+  final _state = Listenable<BluetoothConnectionManagerState>(Disconnected(
+    NotInitialized(),
+  ));
 
   BluetoothConnectionManager(this.address);
 
   BluetoothConnectionManagerState get currentState => _state.data;
   Stream<BluetoothConnectionManagerState> get statesStream => _state.stream;
 
-  void connect() {
+  Future<void> connect() {
     // assert guarantees that there is no other future modifying state
     assert(currentState is Disconnected);
 
@@ -27,14 +50,20 @@ class BluetoothConnectionManager {
     _updateState(Connecting(connf));
 
     // run auto state flow
-    Future(
+    return Future(
       () async {
         late final BluetoothConnection conn;
         try {
-          conn = await connf;
+          await (currentState as Connecting).futureConnection;
+          conn = await connf; // must return immediately as
+          // previous await already waited for it
+        } on DisconnectionReason catch (reason) {
+          _updateState(Disconnected(reason));
+          rethrow;
         } catch (e) {
-          _updateState(Disconnected());
-          return;
+          // must NOT enter here
+          _updateState(Disconnected(FailedToConnect(e)));
+          rethrow;
         }
 
         _updateState(
@@ -45,7 +74,7 @@ class BluetoothConnectionManager {
               // - bluetooth was disabled
               // - device disconnected
               // - host disconnected
-              _updateState(Disconnected());
+              _updateState(Disconnected(StationaryDisconnection()));
             },
           ),
         );
@@ -105,11 +134,35 @@ class Connected implements BluetoothConnectionManagerState {
 }
 
 class Connecting implements BluetoothConnectionManagerState {
-  final Future<void> _futureConnection;
-  Connecting(this._futureConnection);
-  Future<void> get futureConnection => _futureConnection;
+  final _completer = Completer<BluetoothConnection>();
+
+  Connecting(Future<BluetoothConnection> futureConnection) {
+    Future(() async {
+      try {
+        final conn = await futureConnection;
+        if (_completer.isCompleted) {
+          conn.close();
+        } else {
+          _completer.complete(conn);
+        }
+      } catch (reason) {
+        if (!_completer.isCompleted) {
+          _completer.completeError(FailedToConnect(reason));
+        }
+      }
+    });
+  }
+
+  // in case of error returns one of CancelledConnection/FailedToConnect
+  Future<void> get futureConnection => _completer.future;
+
+  void cancel() {
+    assert(!_completer.isCompleted);
+    _completer.completeError(CancelledConnection());
+  }
 }
 
 class Disconnected implements BluetoothConnectionManagerState {
-  // TODO: add reasoning (e.g. 'failed to connect', 'disconnected by the device', 'disconnected by the host')
+  final DisconnectionReason reason;
+  Disconnected(this.reason);
 }

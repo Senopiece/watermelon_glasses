@@ -18,7 +18,9 @@ class ConnectionPageController extends GetxController {
   /// reasoning:
   /// 1) unbind references for garbage collection
   /// 2) retranslate state [Connected] only after done some work on it
-  final _state = Listenable<BluetoothConnectionManagerState>(Disconnected());
+  final _state = Listenable<BluetoothConnectionManagerState>(
+    Disconnected(NotInitialized()),
+  );
   BluetoothConnectionManagerState get currentState => _state.data;
   Stream<BluetoothConnectionManagerState> get statesStream => _state.stream;
 
@@ -40,11 +42,29 @@ class ConnectionPageController extends GetxController {
     Get.find<BluetoothPageController>().gotoDiscoverySubPage();
   }
 
+  void reconnect() {
+    // note that this assert is not the same as the assert in _connector.connect
+    // as this class may be finalizing some resources,
+    // keeping another state for it's currentState
+    assert(currentState is Disconnected);
+    Future(() async {
+      try {
+        await _connector.connect();
+      } on DisconnectionReason {
+        // all is fine, the state was set automatically,
+        // user can see that something went wrong in details,
+        // just ignore
+      }
+    });
+  }
+
   @override
   void onClose() {
     _statesStreamListener.cancel();
     if (_connector.currentState is Connected) {
       (_connector.currentState as Connected).close();
+    } else if (_connector.currentState is Connecting) {
+      (_connector.currentState as Connecting).cancel();
     }
     super.onClose();
   }
@@ -90,6 +110,14 @@ class ConnectionPageController extends GetxController {
         }
       },
     );
-    _connector.connect();
+    Future(() async {
+      try {
+        await _connector.connect();
+      } on DisconnectionReason {
+        // all is fine, the state was set automatically,
+        // user can see that something went wrong in details,
+        // just ignore
+      }
+    });
   }
 }
