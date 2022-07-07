@@ -9,7 +9,7 @@ import 'package:watermelon_glasses/pages/a_page.dart';
 
 ...
 
-Get.to(aPage); // TODO: do we need to provide .name or it's enough?
+Get.to(aPage.name);
 ```
 
 So a page is a couple of `controller` and `UI` (a widget by itself can depend on a controller, but only declared inside `GetPage` it satisfies it's dependency).

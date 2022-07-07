@@ -1,44 +1,32 @@
-import 'dart:async';
-
+import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:get/get.dart';
+import 'package:watermelon_glasses/controllers/connection_page_controller.dart';
+import 'package:watermelon_glasses/views/bluetooth_page/connection_page.dart';
+import 'package:watermelon_glasses/views/bluetooth_page/discovery_page.dart';
 
+// TODO: use another device
+
+/// controls switches between ConnectionPage and DiscoveryPage
 class BluetoothPageController extends GetxController {
-  List<BluetoothDiscoveryResult> results = <BluetoothDiscoveryResult>[];
-  StreamSubscription<BluetoothDiscoveryResult>? streamSubscription;
-  bool isDiscovering = false;
+  final _page = Rxn<Widget>();
 
-  void startDiscovery() {
-    streamSubscription =
-        FlutterBluetoothSerial.instance.startDiscovery().listen((r) {
-      final existingIndex = results
-          .indexWhere((element) => element.device.address == r.device.address);
-      if (existingIndex >= 0) {
-        results[existingIndex] = r;
-      } else {
-        results.add(r);
-      }
-      update();
-    });
+  Widget get page => _page.value!;
+  set page(Widget newPage) => _page.value = newPage;
 
-    streamSubscription!.onDone(() {
-      isDiscovering = false;
-    });
+  void gotoConnectionSubPage(BluetoothDevice arg) {
+    Get.put(ConnectionPageController(arg), permanent: true);
+    page = const ConnectionPage();
   }
 
-  @override
-  void onClose() {
-    streamSubscription?.cancel();
-    super.onClose();
+  void gotoDiscoverySubPage() {
+    Get.delete<ConnectionPageController>(force: true);
+    page = const DiscoveryPage();
   }
 
   @override
   void onInit() {
     super.onInit();
-
-    isDiscovering = true;
-    if (isDiscovering) {
-      startDiscovery();
-    }
+    page = const DiscoveryPage();
   }
 }

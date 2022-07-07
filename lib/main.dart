@@ -1,37 +1,70 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' as flutter_services;
-import 'package:get/get.dart';
-import 'pages/pages.dart';
-import 'services/binding.dart';
-import 'translations/localization.dart';
+import 'dart:async';
 
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  flutter_services.SystemChrome.setPreferredOrientations([
-    flutter_services.DeviceOrientation.portraitUp,
-  ]);
-  runApp(WatermelonGlasses());
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import 'controllers/root_controller.dart';
+import 'firebase_options.dart';
+import 'pages/bluetooth_page.dart';
+import 'pages/manual_page.dart';
+import 'pages/settings_page.dart';
+import 'pages/time_page.dart';
+import 'services/crashanalytics.dart';
+import 'translations/localization.dart';
+import 'views/root.dart';
+
+Future<void> main() async {
+  await runZonedGuarded(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+      runApp(const WatermelonGlasses());
+    },
+    (error, stackTrace) {
+      FirebaseCrashlytics.instance.recordError(error, stackTrace, fatal: true);
+    },
+  );
 }
 
 class WatermelonGlasses extends StatelessWidget {
-   const WatermelonGlasses({Key? key}) : super(key: key);
+  const WatermelonGlasses({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-      return GetMaterialApp(
+    return GetMaterialApp(
       title: 'Watermelon Glasses',
       translations: AppLocalization(),
-      darkTheme: ThemeData.light(),
+      theme: ThemeData.light(), // TODO: custom
+      darkTheme: ThemeData.dark(), // TODO: custom
+      themeMode: ThemeMode.light,
       locale: Get.deviceLocale,
       fallbackLocale: const Locale('en', 'US'),
       debugShowCheckedModeBanner: false,
-      initialBinding: ServicesBinding(),
-      initialRoute: mainPage.name,
+      initialBinding: BindingsBuilder(() {
+        Get.put(Crashanalytics(FirebaseCrashlytics.instance.recordError));
+        Get.put(RootController());
+      }),
+      initialRoute: bluePage.name,
       getPages: [
-        mainPage,
+        bluePage,
+        timePage,
+        manualPage,
+        settingsPage,
       ],
+      builder: (context, content) {
+        return Overlay(
+          initialEntries: [
+            OverlayEntry(
+              builder: (context) => ApplicationRoot(child: content!),
+            )
+          ],
+        );
+      },
     );
   }
 }
-
-
