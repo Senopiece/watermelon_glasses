@@ -28,6 +28,12 @@ class IntervalIntersection extends Error {}
 class InvalidChannelIndex extends Error {}
 
 class WatermelonAleph100 extends WatermelonAleph1xx {
+  @override
+  int get middleVersion => 0;
+
+  @override
+  int get minorVersion => 0;
+
   bool? _isManualMode = false;
   TimePick? _deviceTimePick;
 
