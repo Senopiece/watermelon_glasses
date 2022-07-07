@@ -24,4 +24,6 @@ const Map<String, String> ruRU = {
   "submit": "подтвердить",
   "no channels": "отсутствуют каналы",
   "sync": "синхронизировать",
+  "Name": "Имя",
+  "connection cancelled": "подключение отменено",
 };

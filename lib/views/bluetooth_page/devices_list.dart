@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_placeholder_textlines/flutter_placeholder_textlines.dart';
+import 'package:get/get.dart';
 
 import '../../controllers/discovery_page_controller.dart';
 
@@ -49,7 +50,7 @@ class DevicesList extends StatelessWidget {
                     children: [
                       RichText(
                         text: TextSpan(
-                          text: 'Name: ',
+                          text: '${"Name".tr}: ',
                           style: const TextStyle(
                             color: Colors.black,
                             fontSize: 20,
@@ -67,7 +68,10 @@ class DevicesList extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'Address: ${device.address}',
+                        '${"Address".tr}: ${device.address}',
+                        style: const TextStyle(
+                          color: Colors.black,
+                        ),
                       ),
                     ],
                   ),

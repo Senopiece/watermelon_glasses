@@ -24,4 +24,6 @@ const Map<String, String> enUs = {
   "submit": "submit",
   "no channels": "no channels",
   "sync": "sync",
+  "Name": "Name",
+  "connection cancelled": "connection cancelled",
 };

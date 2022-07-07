@@ -31,4 +31,7 @@ class SettingsPageController extends GetxController {
     }
     _languageNumber++;
   }
+  bool getIsDarkTheme(value){
+    return _isDarkTheme.isFalse;
+  }
 }
