@@ -26,8 +26,8 @@ class DiscoveryPage extends GetView<DiscoveryPageController> {
                                 ? null
                                 : Colors.transparent,
                           ) // TODO: upper line like in browser instead of CircularProgressIndicator
-                        : const Text(
-                            'bluetooth is disabled',
+                        : Text(
+                            'bluetooth is disabled'.tr,
                           ), // this case controller.results.length will be 0 guaranteed
                   ),
                   // TODO: animated add/remove
@@ -43,14 +43,14 @@ class DiscoveryPage extends GetView<DiscoveryPageController> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Device Name: ${device.name}',
+                              '${"Device Name:".tr} ${device.name}',
                               style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             Text(
-                              'Address: ${device.address}',
+                              '${"Address:".tr} ${device.address}',
                             ),
                           ],
                         ),

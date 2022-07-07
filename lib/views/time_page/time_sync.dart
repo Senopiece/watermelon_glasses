@@ -38,7 +38,7 @@ class TimeSync extends GetView<TimeSyncController> {
             row.add(
               ElevatedButton(
                 onPressed: controller.sync,
-                child: const Text('sync'),
+                child: Text('sync'.tr),
               ),
             );
           }

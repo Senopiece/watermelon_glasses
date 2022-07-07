@@ -15,8 +15,8 @@ class Schedule extends GetView<ScheduleController> {
     return GetBuilder<ScheduleController>(
       builder: (controller) {
         if (controller.channels.isEmpty) {
-          return const Center(
-            child: Text('no channels'),
+          return Center(
+            child: Text('no channels'.tr),
           );
         }
         return Column(

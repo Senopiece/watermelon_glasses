@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:watermelon_glasses/datatypes/time.dart';
 import 'package:watermelon_glasses/datatypes/time_interval.dart';
 import 'package:watermelon_glasses/views/time_range_picker.dart';
@@ -58,11 +59,11 @@ class _AddIntervalDialogState extends State<AddIntervalDialog> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               // title
-              const Padding(
+               Padding(
                 padding: EdgeInsets.fromLTRB(0, 20, 0, 15),
                 child: Text(
-                  'select interval',
-                  style: TextStyle(
+                  'select interval'.tr,
+                  style: const TextStyle(
                     fontSize: 20,
                   ),
                 ),
@@ -154,7 +155,7 @@ class _AddIntervalDialogState extends State<AddIntervalDialog> {
                                   selected,
                                 )
                             : null,
-                        child: const Text('submit'),
+                        child: Text('submit'.tr),
                       ),
                     ),
                     const SizedBox(width: 30),
@@ -163,7 +164,7 @@ class _AddIntervalDialogState extends State<AddIntervalDialog> {
                       width: 100,
                       child: ElevatedButton(
                         onPressed: widget.onCancel,
-                        child: const Text('cancel'),
+                        child: Text('cancel'.tr),
                       ),
                     ),
                   ],

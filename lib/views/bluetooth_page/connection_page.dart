@@ -13,22 +13,22 @@ class ConnectionPage extends GetView<ConnectionPageController> {
         late final String label;
         switch (controller.currentState.runtimeType) {
           case Connecting:
-            label = 'connecting...';
+            label = 'connecting...'.tr;
             break;
           case Connected:
-            label = 'connected';
+            label = 'connected'.tr;
             break;
           case Disconnected:
             final state = controller.currentState as Disconnected;
             switch (state.reason.runtimeType) {
               case FailedToConnect:
-                label = 'failed to connect';
+                label = 'failed to connect'.tr;
                 break;
               case StationaryDisconnection:
-                label = 'disconnected';
+                label = 'disconnected'.tr;
                 break;
               case NotInitialized:
-                label = 'starting connection...';
+                label = 'starting connection...'.tr;
                 break;
               default:
                 throw TypeError();
@@ -40,7 +40,7 @@ class ConnectionPage extends GetView<ConnectionPageController> {
 
         final content = <Widget>[
           Text(
-            'Device Name: ${controller.device.name}',
+            '${"Devise Name".tr}: ${controller.device.name}',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -55,8 +55,8 @@ class ConnectionPage extends GetView<ConnectionPageController> {
           ElevatedButton(
             onPressed: controller.gotoDiscoverySubPage,
             child: (controller.currentState is Connecting)
-                ? const Text('cancel')
-                : const Text('close'),
+                ? Text('cancel'.tr)
+                : Text('close'.tr),
           )
         ];
 
@@ -64,7 +64,7 @@ class ConnectionPage extends GetView<ConnectionPageController> {
           content.add(
             ElevatedButton(
               onPressed: controller.reconnect,
-              child: const Text('reconnect'),
+              child:  Text('reconnect'.tr),
             ),
           );
         }
