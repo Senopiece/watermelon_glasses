@@ -24,4 +24,9 @@ const Map<String, String> ruRU = {
   "submit": "подтвердить",
   "no channels": "отсутствуют каналы",
   "sync": "синхронизировать",
+  "connection cancelled": "соединение отменено",
+  "action failed": "действие не выполнено",
+  "Unsupported hardware version": "Неподдерживаемая версия оборудования",
+  "Approve action": "Подтвердить действие",
+  "Remove": "Удалять",
 };

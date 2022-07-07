@@ -30,7 +30,7 @@ class ConnectionPage extends GetView<ConnectionPageController> {
               label = 'starting connection...'.tr;
               break;
             case CancelledConnection:
-              label = 'connection cancelled'; // TODO: translate
+              label = 'connection cancelled'.tr;
               break;
             default:
               throw TypeError();
@@ -51,7 +51,7 @@ class ConnectionPage extends GetView<ConnectionPageController> {
             ),
           ),
           Text(
-            'Address: ${controller.device.address}',
+            '${"Address".tr}: ${controller.device.address}',
           ),
           Text(label),
           ElevatedButton(
