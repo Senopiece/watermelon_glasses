@@ -10,21 +10,22 @@ class DiscoveryPage extends GetView<DiscoveryPageController> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => Scaffold(
-          body: (controller.isBlueEnabled ?? false
-              ?
-              // TODO: animated add/remove
-              // TODO: center text "no devices found" when controller.results.length == 0
+    return Obx(
+      () => Scaffold(
+        body: (controller.isBlueEnabled ?? false
+            ?
+            // TODO: animated add/remove
+            // TODO: center text "no devices found" when controller.results.length == 0
 
-              RefreshIndicator(
-                  onRefresh: () async => controller.startDiscovery(),
-                  child: DevicesList(controller: controller),
-                )
-              : RefreshIndicator(
-                  onRefresh: () async => controller.startDiscovery(),
-                  child:
-                      Stack(children: [ListView(), const BluetoothDisabled()]),
-                )),
-        ));
+            RefreshIndicator(
+                onRefresh: () async => controller.startDiscovery(),
+                child: DevicesList(),
+              )
+            : RefreshIndicator(
+                onRefresh: () async => controller.startDiscovery(),
+                child: Stack(children: [ListView(), const BluetoothDisabled()]),
+              )),
+      ),
+    );
   }
 }
