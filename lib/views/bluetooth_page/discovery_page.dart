@@ -19,7 +19,7 @@ class DiscoveryPage extends GetView<DiscoveryPageController> {
 
             RefreshIndicator(
                 onRefresh: () async => controller.startDiscovery(),
-                child: DevicesList(),
+                child: const DevicesList(),
               )
             : RefreshIndicator(
                 onRefresh: () async => controller.startDiscovery(),
