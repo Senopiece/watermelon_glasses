@@ -16,12 +16,16 @@ class TimeIntervalBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+          primary: const Color.fromARGB(255, 155, 219, 157)
+      ),
       onPressed: onPress,
       onLongPress: onLongPress,
       child: Text(
         timeInterval.toString(),
         style: const TextStyle(
           fontSize: 15,
+          color: Colors.black
         ),
       ),
     );
