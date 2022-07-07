@@ -2,7 +2,7 @@ name: Format Code Base
 
 on:
   push:
-    branches-ignore: [ main ]
+    branches-ignore: [ master ]
 
 jobs:
   build:
