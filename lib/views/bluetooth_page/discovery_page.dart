@@ -15,7 +15,6 @@ class DiscoveryPage extends GetView<DiscoveryPageController> {
         body: (controller.isBlueEnabled ?? false
             ?
             // TODO: animated add/remove
-            // TODO: center text "no devices found" when controller.results.length == 0
 
             RefreshIndicator(
                 onRefresh: () async => controller.startDiscovery(),
