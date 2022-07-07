@@ -37,6 +37,9 @@ class TimeSync extends GetView<TimeSyncController> {
             );
             row.add(
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    primary: const Color.fromARGB(255, 155, 219, 157)
+                ),
                 onPressed: controller.sync,
                 child: Text('sync'.tr),
               ),
