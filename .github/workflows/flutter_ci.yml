@@ -2,7 +2,7 @@ name: Flutter CI
 
 on:
   push:
-    branches-ignore: [ main ]
+    branches: [ main ]
 
 jobs:
   build:

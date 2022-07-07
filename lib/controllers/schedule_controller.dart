@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:watermelon_glasses/abstracts/watermelon.dart';
+import 'package:watermelon_glasses/datatypes/time.dart';
 import 'package:watermelon_glasses/datatypes/time_interval.dart';
-import 'package:watermelon_glasses/helpers/watermelon.dart';
+import 'package:watermelon_glasses/implementations/watermelons/watermelon_aleph_100.dart';
+import 'package:watermelon_glasses/services/crashanalytics.dart';
 import 'package:watermelon_glasses/views/time_page/dialogs/add_interval.dart';
 
 import 'time_page_controller.dart';
@@ -10,9 +13,11 @@ import 'time_page_controller.dart';
 /// NOTE: this class delegates all the context work to the TimePageController,
 /// so like the connection setup into not manual mode etc...
 class ScheduleController extends GetxController {
+  get duckWatermelon => Get.find<TimePageController>().watermelon!;
   Watermelon get watermelon => Get.find<TimePageController>().watermelon!;
-  List<List<TimeInterval>> get channels => watermelon.immediateChannels;
-  int get channelCapacity => watermelon.channelScheduleCapacity;
+
+  List<List<TimeInterval>> get channels => duckWatermelon.immediateChannels;
+  int get channelCapacity => duckWatermelon.channelScheduleCapacity;
 
   /// will newer throw any errors,
   /// but rather redirect them to crashanalytics and show fail toast
@@ -20,42 +25,75 @@ class ScheduleController extends GetxController {
     try {
       await action;
       update();
-    } catch (e) {
+    } catch (e, s) {
+      // don't let it be a stopper, send report directly to crashanalytics
+      Get.find<Crashanalytics>().recordError(e, s);
+
+      // notify user by error toast
       Fluttertoast.cancel();
       Fluttertoast.showToast(
-        msg: "a command to watermelon failed",
+        msg: "action failed",
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         backgroundColor: Colors.red,
         textColor: Colors.white,
         fontSize: 16.0,
       );
-      // todo: be further handled by crashanalytics
     }
   }
 
   void addTimeInterval() {
-    Get.dialog(
-      AddIntervalDialog(
-        matchesFilter: (TimeInterval interval) sync* {
-          for (final channelIndex in watermelon.putDoesNotIntersect(interval)) {
-            if (channels[channelIndex].length != channelCapacity) {
-              yield channelIndex;
+    if (watermelon is WatermelonAleph100) {
+      final wmelon = watermelon as WatermelonAleph100;
+
+      Get.dialog(
+        AddIntervalDialog(
+          matchesFilter: (TimeInterval interval) sync* {
+            for (final int channelIndex
+                in wmelon.putDoesNotIntersect(interval)) {
+              if (channels[channelIndex].length != channelCapacity) {
+                yield channelIndex;
+              }
             }
-          }
-        },
-        submit: (TimeInterval interval, Iterable<int> selected) async {
-          // assert(selected is a subset of matchesFilter(interval))
-          Get.back();
-          for (final channelIndex in selected) {
-            await _safeAction(
-              watermelon.put(interval, channelIndex),
-            );
-          }
-        },
-        onCancel: () => Get.back(),
-      ),
-    );
+          },
+          submit: (TimeInterval interval, Iterable<int> selected) async {
+            // assert(selected is a subset of matchesFilter(interval))
+            Get.back();
+            for (final channelIndex in selected) {
+              await _safeAction(
+                wmelon.put(interval, channelIndex),
+              );
+            }
+          },
+          onCancel: () => Get.back(),
+          initialData: TimeInterval.parse('12:00 - 12:59'),
+          timeSync: (TimeInterval prev, TimeInterval next) {
+            Time startTime = next.startTime;
+            Time endTime = next.endTime;
+
+            if (!(next.endTime > next.startTime)) {
+              if (prev.endTime > next.startTime) {
+                endTime = prev.endTime;
+              } else {
+                endTime = startTime.advance(60);
+              }
+            }
+
+            return TimeInterval(startTime, endTime);
+          },
+        ),
+      );
+    } else {
+      Fluttertoast.cancel();
+      Fluttertoast.showToast(
+        msg: "Unsupported hardware version",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+    }
   }
 
   // TODO: add edit dialog
@@ -70,7 +108,7 @@ class ScheduleController extends GetxController {
       onConfirm: () async {
         Get.back();
         await _safeAction(
-          watermelon.pull(interval, channel),
+          duckWatermelon.pull(interval, channel),
         );
       },
       onCancel: () {},

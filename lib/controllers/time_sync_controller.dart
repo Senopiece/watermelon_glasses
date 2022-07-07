@@ -1,14 +1,16 @@
 import 'package:get/get.dart';
+import 'package:watermelon_glasses/abstracts/watermelon.dart';
 import 'package:watermelon_glasses/datatypes/time.dart';
-import 'package:watermelon_glasses/helpers/watermelon.dart';
 
 import 'time_page_controller.dart';
 
 /// NOTE: this class delegates all the context work to the TimePageController,
 /// so like the connection setup into not manual mode etc...
 class TimeSyncController extends GetxController {
-  Time get time => watermelon.immediateDeviceTime;
+  Time get time => duckWatermelon.immediateDeviceTime;
   bool get isUnsynced => Time.now().diff(time).abs() > 5;
+
+  get duckWatermelon => watermelon;
   Watermelon get watermelon => Get.find<TimePageController>().watermelon!;
 
   bool _tick = true;
@@ -17,7 +19,7 @@ class TimeSyncController extends GetxController {
   void sync() {
     if (_syncing) return;
     _syncing = true;
-    watermelon.setTime(Time.now()).whenComplete(
+    duckWatermelon.setTime(Time.now()).whenComplete(
       () {
         _syncing = false;
         update();

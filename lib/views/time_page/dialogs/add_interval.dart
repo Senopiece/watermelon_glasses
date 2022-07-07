@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:watermelon_glasses/datatypes/time.dart';
 import 'package:watermelon_glasses/datatypes/time_interval.dart';
 import 'package:watermelon_glasses/views/time_range_picker.dart';
@@ -7,12 +8,16 @@ class AddIntervalDialog extends StatefulWidget {
   final VoidCallback onCancel;
   final void Function(TimeInterval, Iterable<int>) submit;
   final Iterable<int> Function(TimeInterval) matchesFilter;
+  final TimeInterval Function(TimeInterval, TimeInterval) timeSync;
+  final TimeInterval initialData;
 
   const AddIntervalDialog({
     Key? key,
     required this.onCancel,
     required this.submit,
     required this.matchesFilter,
+    required this.timeSync,
+    required this.initialData,
   }) : super(key: key);
 
   @override
@@ -20,8 +25,7 @@ class AddIntervalDialog extends StatefulWidget {
 }
 
 class _AddIntervalDialogState extends State<AddIntervalDialog> {
-  var startTime = Time.fromHMS(12, 0, 0);
-  var endTime = Time.fromHMS(13, 0, 0);
+  late var data = widget.initialData;
 
   var matches = <int>[]; // list of channel indices
   var selected = <int>{}; // set of channel indices (subset of matches)
@@ -32,7 +36,7 @@ class _AddIntervalDialogState extends State<AddIntervalDialog> {
     // update matches list
     matches = widget
         .matchesFilter(
-          TimeInterval(startTime, endTime),
+          TimeInterval(data.startTime, data.endTime),
         )
         .toList();
 
@@ -58,11 +62,11 @@ class _AddIntervalDialogState extends State<AddIntervalDialog> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               // title
-              const Padding(
-                padding: EdgeInsets.fromLTRB(0, 20, 0, 15),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 20, 0, 15),
                 child: Text(
-                  'select interval',
-                  style: TextStyle(
+                  'select interval'.tr,
+                  style: const TextStyle(
                     fontSize: 20,
                   ),
                 ),
@@ -70,27 +74,25 @@ class _AddIntervalDialogState extends State<AddIntervalDialog> {
               // time picker
               const Divider(),
               TimeRangePicker(
-                endTime: endTime,
-                startTime: startTime,
+                endTime: data.endTime,
+                startTime: data.startTime,
                 onStartTimeChanged: (Time newStartTime) {
                   setState(() {
-                    startTime = newStartTime;
-
-                    // sync endTime to always have correct interval
-                    if (!(endTime > startTime)) {
-                      endTime = startTime.advance(60);
-                    }
-
+                    data = widget.timeSync(
+                      data,
+                      data.copyWith(startTime: newStartTime),
+                    );
                     _applyMatchesFiler();
                   });
                 },
                 onEndTimeChanged: (Time newEndTime) {
-                  if (newEndTime > startTime) {
-                    setState(() {
-                      endTime = newEndTime;
-                      _applyMatchesFiler();
-                    });
-                  }
+                  setState(() {
+                    data = widget.timeSync(
+                      data,
+                      data.copyWith(endTime: newEndTime),
+                    );
+                    _applyMatchesFiler();
+                  });
                 },
               ),
               const Divider(),
@@ -150,11 +152,11 @@ class _AddIntervalDialogState extends State<AddIntervalDialog> {
                       child: ElevatedButton(
                         onPressed: selected.isNotEmpty
                             ? () => widget.submit(
-                                  TimeInterval(startTime, endTime),
+                                  TimeInterval(data.startTime, data.endTime),
                                   selected,
                                 )
                             : null,
-                        child: const Text('submit'),
+                        child: Text('submit'.tr),
                       ),
                     ),
                     const SizedBox(width: 30),
@@ -163,7 +165,7 @@ class _AddIntervalDialogState extends State<AddIntervalDialog> {
                       width: 100,
                       child: ElevatedButton(
                         onPressed: widget.onCancel,
-                        child: const Text('cancel'),
+                        child: Text('cancel'.tr),
                       ),
                     ),
                   ],

@@ -2,54 +2,29 @@ import 'dart:async';
 
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:get/get.dart';
+import 'package:watermelon_glasses/abstracts/connection_manager.dart';
 import 'package:watermelon_glasses/controllers/bluetooth_page_controller.dart';
-import 'package:watermelon_glasses/helpers/bluetooth_connection_manager.dart';
-import 'package:watermelon_glasses/helpers/listenable.dart';
-import 'package:watermelon_glasses/helpers/watermelon.dart';
+import 'package:watermelon_glasses/implementations/connection_manager/watermelon_connection_manager.dart';
+import 'package:watermelon_glasses/implementations/rrc_connection_manager/bluetooth_connection_manager.dart';
 
 class ConnectionPageController extends GetxController {
   final BluetoothDevice device;
-  final BluetoothConnectionManager _connector;
-  late final StreamSubscription<BluetoothConnectionManagerState>
-      _statesStreamListener;
-  Watermelon? _watermelon;
+  WatermelonConnectionManager? connector;
 
-  /// retranslation of _connector.statesStream
-  /// reasoning:
-  /// 1) unbind references for garbage collection
-  /// 2) retranslate state [Connected] only after done some work on it
-  final _state = Listenable<BluetoothConnectionManagerState>(
-    Disconnected(NotInitialized()),
-  );
-  BluetoothConnectionManagerState get currentState => _state.data;
-  Stream<BluetoothConnectionManagerState> get statesStream => _state.stream;
+  /// listen to [connector] to perform view updates
+  StreamSubscription<ConnectionManagerState>? _statesStreamListener;
 
-  void _updateState(BluetoothConnectionManagerState newState) {
-    _state.data = newState;
-
-    // update view as it must display the same state
-    update();
-  }
-
-  /// hide watermelon in case it is still occupied
-  Watermelon? get getWatermelon =>
-      (currentState is Connected) ? _watermelon : null;
-
-  ConnectionPageController(this.device)
-      : _connector = BluetoothConnectionManager(device.address);
+  ConnectionPageController(this.device);
 
   void gotoDiscoverySubPage() {
     Get.find<BluetoothPageController>().gotoDiscoverySubPage();
   }
 
   void reconnect() {
-    // note that this assert is not the same as the assert in _connector.connect
-    // as this class may be finalizing some resources,
-    // keeping another state for it's currentState
-    assert(currentState is Disconnected);
+    assert(connector!.currentState is Disconnected);
     Future(() async {
       try {
-        await _connector.connect();
+        await connector!.connect();
       } on DisconnectionReason {
         // all is fine, the state was set automatically,
         // user can see that something went wrong in details,
@@ -60,64 +35,29 @@ class ConnectionPageController extends GetxController {
 
   @override
   void onClose() {
-    _statesStreamListener.cancel();
-    if (_connector.currentState is Connected) {
-      (_connector.currentState as Connected).close();
-    } else if (_connector.currentState is Connecting) {
-      (_connector.currentState as Connecting).cancel();
-    }
+    _statesStreamListener?.cancel();
+    _statesStreamListener = null;
+
+    connector?.finalize();
+    connector = null;
+
     super.onClose();
   }
 
   @override
   void onInit() {
     super.onInit();
-    _statesStreamListener = _connector.statesStream.listen(
-      (newState) {
-        if (newState is Connected) {
-          _watermelon = Watermelon(
-            (_connector.currentState as Connected).rrc,
-          );
 
-          // start channels getter right here,
-          // so it further can be accessed immediately
-          Future(
-            () async {
-              try {
-                // ensure no manual mode for the next invocations
-                await _watermelon!.exitManualMode();
+    assert(connector == null);
+    assert(_statesStreamListener == null);
 
-                // invoke this things firstly,
-                // so they will be cached for the further fast access
-                await _watermelon!.channelsCount;
-                await _watermelon!.deviceTime;
-
-                // retranslate state after all the work of this class is done,
-                // so others can pick it up safely
-                _updateState(newState);
-              } catch (e) {
-                (_connector.currentState as Connected).close();
-              }
-            },
-          );
-        } else {
-          // fully dispose watermelon according to doc of [actions] parameter
-          _watermelon?.free();
-          _watermelon = null;
-
-          // retranslate immediately
-          _updateState(newState);
-        }
-      },
+    connector = WatermelonConnectionManager(
+      BluetoothConnectionManager(device.address),
     );
-    Future(() async {
-      try {
-        await _connector.connect();
-      } on DisconnectionReason {
-        // all is fine, the state was set automatically,
-        // user can see that something went wrong in details,
-        // just ignore
-      }
-    });
+    _statesStreamListener = connector!.statesStream.listen(
+      (newState) => update(),
+    );
+
+    reconnect();
   }
 }

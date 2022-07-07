@@ -1,20 +1,34 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' as flutter_services;
-import 'package:get/get.dart';
-import 'package:watermelon_glasses/controllers/root_controller.dart';
-import 'package:watermelon_glasses/pages/manual_page.dart';
-import 'package:watermelon_glasses/pages/settings_page.dart';
-import 'package:watermelon_glasses/pages/time_page.dart';
-import 'package:watermelon_glasses/views/root.dart';
-import 'pages/bluetooth_page.dart';
-import 'translations/localization.dart';
+import 'dart:async';
 
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  flutter_services.SystemChrome.setPreferredOrientations([
-    flutter_services.DeviceOrientation.portraitUp,
-  ]);
-  runApp(const WatermelonGlasses());
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import 'controllers/root_controller.dart';
+import 'firebase_options.dart';
+import 'pages/bluetooth_page.dart';
+import 'pages/manual_page.dart';
+import 'pages/settings_page.dart';
+import 'pages/time_page.dart';
+import 'services/crashanalytics.dart';
+import 'translations/localization.dart';
+import 'views/root.dart';
+
+Future<void> main() async {
+  await runZonedGuarded(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+      runApp(const WatermelonGlasses());
+    },
+    (error, stackTrace) {
+      FirebaseCrashlytics.instance.recordError(error, stackTrace, fatal: true);
+    },
+  );
 }
 
 class WatermelonGlasses extends StatelessWidget {
@@ -32,6 +46,7 @@ class WatermelonGlasses extends StatelessWidget {
       fallbackLocale: const Locale('en', 'US'),
       debugShowCheckedModeBanner: false,
       initialBinding: BindingsBuilder(() {
+        Get.put(Crashanalytics());
         Get.put(RootController());
       }),
       initialRoute: bluePage.name,

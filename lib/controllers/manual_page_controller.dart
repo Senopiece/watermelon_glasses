@@ -3,8 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:watermelon_glasses/helpers/bluetooth_connection_manager.dart';
-import 'package:watermelon_glasses/helpers/watermelon.dart';
+import 'package:watermelon_glasses/abstracts/connection_manager.dart';
+import 'package:watermelon_glasses/abstracts/watermelon.dart';
+import 'package:watermelon_glasses/implementations/connection_manager/watermelon_connection_manager.dart';
 
 import 'connection_page_controller.dart';
 
@@ -15,22 +16,21 @@ class ManualPageController extends GetxController {
   final _connecting = false.obs;
   final channels = <bool>[].obs;
 
-  late final ConnectionPageController? connectionController;
-  late final StreamSubscription<BluetoothConnectionManagerState>?
-      statesStreamListener;
+  ConnectionPageController? connectionController;
+  StreamSubscription<ConnectionManagerState>? statesStreamListener;
 
   bool get connecting => _connecting.value;
   set connecting(bool val) => _connecting.value = val;
 
-  Watermelon? get watermelon => _watermelon.value;
+  get duckWatermelon => _watermelon.value;
   set watermelon(Watermelon? val) => _watermelon.value = val;
 
   Future<void> switchChannel(int index) async {
     try {
       if (channels[index]) {
-        await watermelon!.closeChannel(index);
+        await duckWatermelon.closeChannel(index);
       } else {
-        await watermelon!.openChannel(index);
+        await duckWatermelon.openChannel(index);
       }
       channels[index] = !channels[index];
     } catch (e) {
@@ -48,20 +48,17 @@ class ManualPageController extends GetxController {
   }
 
   /// NOTE: ensure connectionController is not null
-  void _instantiateWatermelon() {
-    connecting = connectionController!.currentState is Connecting;
-    watermelon = connectionController!.getWatermelon;
+  void _instantiateWatermelon(ConnectionManagerState newState) {
+    watermelon = null;
+    connecting = newState is Connecting;
 
-    if (watermelon != null) {
-      Future(
-        () async {
-          channels.value = List.filled(
-            await watermelon!.channelsCount,
-            false,
-          );
-          await watermelon!.enterManualMode();
-        },
+    if (newState is Connected) {
+      watermelon = (newState as ConnectedWatermelon).watermelon;
+      channels.value = List.filled(
+        duckWatermelon.immediateChannels.length,
+        false,
       );
+      duckWatermelon.enterManualMode();
     }
   }
 
@@ -77,23 +74,12 @@ class ManualPageController extends GetxController {
 
     if (connectionController != null) {
       // consume initial state
-      _instantiateWatermelon();
+      _instantiateWatermelon(connectionController!.connector!.currentState);
 
       // listen to the further states
-      statesStreamListener = connectionController!.statesStream.listen(
-        (newState) {
-          // there is a good place to cancel [preparator],
-          // but dart Futures cannot be cancelled
-
-          // so we don't mind what happens to the prev connection,
-          // it's now not in our area of response
-
-          // throw the prev descriptor
-          watermelon = null;
-
-          // if there is a new descriptor, pick it
-          _instantiateWatermelon();
-        },
+      statesStreamListener =
+          connectionController!.connector!.statesStream.listen(
+        (newState) => _instantiateWatermelon(newState),
       );
     } else {
       connecting = false;
@@ -103,8 +89,8 @@ class ManualPageController extends GetxController {
   @override
   void onClose() {
     statesStreamListener?.cancel();
-    watermelon?.flushActions();
-    watermelon?.exitManualMode();
+    duckWatermelon?.flushActions();
+    duckWatermelon?.exitManualMode();
     super.onClose();
   }
 }

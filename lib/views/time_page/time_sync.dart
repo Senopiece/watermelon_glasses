@@ -11,7 +11,7 @@ class TimeSync extends GetView<TimeSyncController> {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.only(left: 10),
-      width: 200,
+      width: 400,
       height: 50,
       // TODO: beautifully animate when data becomes rendered
       child: GetBuilder<TimeSyncController>(
@@ -38,7 +38,7 @@ class TimeSync extends GetView<TimeSyncController> {
             row.add(
               ElevatedButton(
                 onPressed: controller.sync,
-                child: const Text('sync'),
+                child: Text('sync'.tr),
               ),
             );
           }

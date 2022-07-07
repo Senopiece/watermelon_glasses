@@ -23,6 +23,8 @@ dependencies:
   numberpicker: ^2.1.1
   flutter_native_splash: ^2.2.4
   flutter_placeholder_textlines: ^1.1.2
+  firebase_crashlytics: ^2.8.2
+  firebase_core: ^1.18.0
 
 dev_dependencies:
   flutter_test:

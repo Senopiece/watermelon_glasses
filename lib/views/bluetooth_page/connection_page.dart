@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:watermelon_glasses/abstracts/connection_manager.dart';
 import 'package:watermelon_glasses/controllers/connection_page_controller.dart';
-import 'package:watermelon_glasses/helpers/bluetooth_connection_manager.dart';
 
 class ConnectionPage extends GetView<ConnectionPageController> {
   const ConnectionPage({Key? key}) : super(key: key);
@@ -11,41 +11,43 @@ class ConnectionPage extends GetView<ConnectionPageController> {
     return GetBuilder<ConnectionPageController>(
       builder: (controller) {
         late final String label;
-        switch (controller.currentState.runtimeType) {
-          case Connecting:
-            label = 'connecting...';
-            break;
-          case Connected:
-            label = 'connected';
-            break;
-          case Disconnected:
-            final state = controller.currentState as Disconnected;
-            switch (state.reason.runtimeType) {
-              case FailedToConnect:
-                label = 'failed to connect';
-                break;
-              case StationaryDisconnection:
-                label = 'disconnected';
-                break;
-              case NotInitialized:
-                label = 'starting connection...';
-                break;
-              default:
-                throw TypeError();
-            }
-            break;
-          default:
-            throw TypeError();
+        final state = controller.connector!.currentState;
+
+        if (state is Connecting) {
+          label = 'connecting...'.tr;
+        } else if (state is Connected) {
+          label = 'connected'.tr;
+        } else if (state is Disconnected) {
+          final reasoning = controller.connector!.currentState as Disconnected;
+          switch (reasoning.reason.runtimeType) {
+            case FailedToConnect:
+              label = 'failed to connect'.tr;
+              break;
+            case StationaryDisconnection:
+              label = 'disconnected'.tr;
+              break;
+            case NotInitialized:
+              label = 'starting connection...'.tr;
+              break;
+            case CancelledConnection:
+              label = 'connection cancelled'; // TODO: translate
+              break;
+            default:
+              throw TypeError();
+          }
+        } else {
+          throw TypeError();
         }
 
         final content = <Widget>[
           Text(
-            'Device Name: ${controller.device.name}',
+            '${"Devise Name".tr}: ${controller.device.name}',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color:
-                  (controller.currentState is Connected) ? Colors.green : null,
+              color: (controller.connector!.currentState is Connected)
+                  ? Colors.green
+                  : null,
             ),
           ),
           Text(
@@ -54,17 +56,17 @@ class ConnectionPage extends GetView<ConnectionPageController> {
           Text(label),
           ElevatedButton(
             onPressed: controller.gotoDiscoverySubPage,
-            child: (controller.currentState is Connecting)
-                ? const Text('cancel')
-                : const Text('close'),
+            child: (controller.connector!.currentState is Connecting)
+                ? Text('cancel'.tr)
+                : Text('close'.tr),
           )
         ];
 
-        if (controller.currentState is Disconnected) {
+        if (controller.connector!.currentState is Disconnected) {
           content.add(
             ElevatedButton(
               onPressed: controller.reconnect,
-              child: const Text('reconnect'),
+              child: Text('reconnect'.tr),
             ),
           );
         }
