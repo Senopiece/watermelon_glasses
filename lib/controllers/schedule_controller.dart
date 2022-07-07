@@ -32,7 +32,7 @@ class ScheduleController extends GetxController {
       // notify user by error toast
       Fluttertoast.cancel();
       Fluttertoast.showToast(
-        msg: "action failed",
+        msg: "action failed".tr,
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         backgroundColor: Colors.red,
@@ -86,7 +86,7 @@ class ScheduleController extends GetxController {
     } else {
       Fluttertoast.cancel();
       Fluttertoast.showToast(
-        msg: "Unsupported hardware version",
+        msg: "Unsupported hardware version".tr,
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         backgroundColor: Colors.red,
@@ -103,8 +103,8 @@ class ScheduleController extends GetxController {
 
   void removeTimeInterval(int channel, TimeInterval interval) {
     Get.defaultDialog(
-      title: "Approve action",
-      middleText: 'Remove?',
+      title: "Approve action".tr,
+      middleText: '${'Remove'.tr}?',
       onConfirm: () async {
         Get.back();
         await _safeAction(

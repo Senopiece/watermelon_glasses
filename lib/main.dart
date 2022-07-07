@@ -46,7 +46,7 @@ class WatermelonGlasses extends StatelessWidget {
       fallbackLocale: const Locale('en', 'US'),
       debugShowCheckedModeBanner: false,
       initialBinding: BindingsBuilder(() {
-        Get.put(Crashanalytics());
+        Get.put(Crashanalytics(FirebaseCrashlytics.instance.recordError));
         Get.put(RootController());
       }),
       initialRoute: bluePage.name,

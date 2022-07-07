@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class BluetoothDisabled extends StatelessWidget {
   const BluetoothDisabled({super.key});
@@ -15,9 +16,9 @@ class BluetoothDisabled extends StatelessWidget {
           const SizedBox(
             height: 30,
           ),
-          const Text(
-            'Bluetooth is disabled!',
-            style: TextStyle(
+          Text(
+            'bluetooth is disabled'.tr,
+            style: const TextStyle(
               fontSize: 20,
               color: Colors.red,
             ),
