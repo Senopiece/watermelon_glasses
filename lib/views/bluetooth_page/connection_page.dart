@@ -36,7 +36,6 @@ class ConnectionPage extends GetView<ConnectionPageController> {
               throw TypeError();
           }
         } else {
-          throw state;
           throw TypeError();
         }
 
