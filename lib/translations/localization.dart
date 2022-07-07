@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:watermelon_glasses/translations/ru_RU.dart';
+import 'package:watermelon_glasses/translations/ru_ru.dart';
 import 'en_us.dart';
 
 class AppLocalization extends Translations {
