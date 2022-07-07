@@ -1,33 +1,35 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
+import 'package:watermelon_glasses/abstracts/connection_manager.dart';
+import 'package:watermelon_glasses/abstracts/watermelon.dart';
 import 'package:watermelon_glasses/controllers/connection_page_controller.dart';
-import 'package:watermelon_glasses/helpers/bluetooth_connection_manager.dart';
-import 'package:watermelon_glasses/helpers/watermelon.dart';
+import 'package:watermelon_glasses/implementations/connection_manager/watermelon_connection_manager.dart';
 
 class TimePageController extends GetxController {
   final _watermelon = Rxn<Watermelon>();
   final _connecting = false.obs;
 
-  late final ConnectionPageController? connectionController;
-  late final StreamSubscription<BluetoothConnectionManagerState>?
-      statesStreamListener;
+  ConnectionPageController? connectionController;
+  StreamSubscription<ConnectionManagerState>? statesStreamListener;
 
   bool get connecting => _connecting.value;
   set connecting(bool val) => _connecting.value = val;
 
+  get duckWatermelon => _watermelon.value;
   Watermelon? get watermelon => _watermelon.value;
   set watermelon(Watermelon? val) => _watermelon.value = val;
 
   /// NOTE: ensure connectionController is not null
-  void _instantiateWatermelon() {
-    watermelon = connectionController!.getWatermelon;
-    if (watermelon != null) {
-      connecting = !(watermelon!.canGetImmediateDeviceTime);
+  void _instantiateWatermelon(ConnectionManagerState newState) {
+    watermelon = null;
+    if (newState is Connected) {
+      watermelon = (newState as ConnectedWatermelon).watermelon;
+      connecting = !(duckWatermelon.canGetImmediateDeviceTime);
     } else {
-      connecting = connectionController!.currentState is Connecting;
+      connecting = newState is Connecting;
     }
-    watermelon?.exitManualMode(); // ensure auto mode
+    duckWatermelon?.exitManualMode(); // ensure auto mode
   }
 
   @override
@@ -42,20 +44,12 @@ class TimePageController extends GetxController {
 
     if (connectionController != null) {
       // consume initial state
-      _instantiateWatermelon();
+      _instantiateWatermelon(connectionController!.connector!.currentState);
 
       // listen to the further states
-      statesStreamListener = connectionController!.statesStream.listen(
+      statesStreamListener =
+          connectionController!.connector!.statesStream.listen(
         (newState) {
-          // there is a good place to cancel [preparator],
-          // but dart Futures cannot be cancelled
-
-          // so we don't mind what happens to the prev connection,
-          // it's now not in our area of response
-
-          // throw the prev descriptor
-          watermelon = null;
-
           // close dialogs when the device is not connected
           if (newState is! Connected) {
             while (Get.isDialogOpen!) {
@@ -64,7 +58,7 @@ class TimePageController extends GetxController {
           }
 
           // if there is a new descriptor, pick it
-          _instantiateWatermelon();
+          _instantiateWatermelon(newState);
         },
       );
     } else {
@@ -75,7 +69,7 @@ class TimePageController extends GetxController {
   @override
   void onClose() {
     statesStreamListener?.cancel();
-    watermelon?.flushActions();
+    duckWatermelon?.flushActions();
     super.onClose();
   }
 }

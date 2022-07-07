@@ -11,7 +11,7 @@ class ManualPageRoot extends GetView<ManualPageController> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Obx(
-        () => controller.watermelon == null
+        () => controller.duckWatermelon == null
             ? controller.connecting
                 ? const Center(child: CircularProgressIndicator())
                 : Center(child: Text('no device connected'.tr))

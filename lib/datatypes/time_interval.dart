@@ -36,4 +36,13 @@ class TimeInterval {
 
   @override
   int get hashCode => startTime.hashCode ^ endTime.hashCode;
+
+  TimeInterval copyWith({
+    Time? startTime,
+    Time? endTime,
+  }) =>
+      TimeInterval(
+        startTime ?? this.startTime,
+        endTime ?? this.endTime,
+      );
 }

@@ -3,58 +3,42 @@ import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+import 'package:watermelon_glasses/abstracts/connection_manager.dart';
 import 'package:watermelon_glasses/abstracts/rrc.dart';
-
-import 'delegate_rrc.dart';
-import 'listenable.dart';
-
-class DisconnectionReason extends Error {
-  final dynamic internalReason;
-  DisconnectionReason(this.internalReason);
-}
-
-class FailedToConnect extends DisconnectionReason {
-  FailedToConnect(super.internalReason);
-}
-
-class StationaryDisconnection extends DisconnectionReason {
-  StationaryDisconnection() : super(null);
-}
-
-class NotInitialized extends DisconnectionReason {
-  NotInitialized() : super(null);
-}
-
-class CancelledConnection extends DisconnectionReason {
-  CancelledConnection() : super(null);
-}
+import 'package:watermelon_glasses/abstracts/rrc_connection_manager.dart';
+import 'package:watermelon_glasses/helpers/listenable.dart';
+import 'package:watermelon_glasses/implementations/rcc/delegate_rrc.dart';
 
 /// state machine over BluetoothConnection
-class BluetoothConnectionManager {
+class BluetoothConnectionManager extends RrcConnectionManager {
   final String address;
-  final _state = Listenable<BluetoothConnectionManagerState>(Disconnected(
-    NotInitialized(),
-  ));
+  final _state = Listenable<ConnectionManagerState>(
+    Disconnected(NotInitialized()),
+  );
 
   BluetoothConnectionManager(this.address);
 
-  BluetoothConnectionManagerState get currentState => _state.data;
-  Stream<BluetoothConnectionManagerState> get statesStream => _state.stream;
+  @override
+  ConnectionManagerState get currentState => _state.data;
 
-  Future<void> connect() {
+  @override
+  Stream<ConnectionManagerState> get statesStream => _state.stream;
+
+  @override
+  Future<Connected> connect() {
     // assert guarantees that there is no other future modifying state
     assert(currentState is Disconnected);
 
     // prepare to run future
     Future<BluetoothConnection> connf = BluetoothConnection.toAddress(address);
-    _updateState(Connecting(connf));
+    _updateState(_Connecting(connf));
 
     // run auto state flow
     return Future(
       () async {
         late final BluetoothConnection conn;
         try {
-          await (currentState as Connecting).futureConnection;
+          await (currentState as _Connecting).futureConnection;
           conn = await connf; // must return immediately as
           // previous await already waited for it
         } on DisconnectionReason catch (reason) {
@@ -67,7 +51,7 @@ class BluetoothConnectionManager {
         }
 
         _updateState(
-          Connected(
+          _Connected(
             conn,
             whenDisconnected: () {
               // it will come here if
@@ -78,25 +62,33 @@ class BluetoothConnectionManager {
             },
           ),
         );
+
+        return currentState as Connected;
       },
     );
   }
 
+  @override
+  void finalize() {
+    if (currentState is Connected) {
+      (currentState as Connected).close();
+    } else if (currentState is Connecting) {
+      (currentState as Connecting).cancel();
+    }
+  }
+
   /// private because external modification may cause undefined behaviour
-  void _updateState(BluetoothConnectionManagerState newState) {
+  void _updateState(ConnectionManagerState newState) {
     _state.data = newState;
   }
 }
 
-/// disconnected <-auto- -connect-> connecting -auto-> connected -auto-> disconnected
-abstract class BluetoothConnectionManagerState {}
-
-class Connected implements BluetoothConnectionManagerState {
+class _Connected extends ConnectedRRC {
   final BluetoothConnection _connection;
   final VoidCallback? _whenDisconnected;
   final _buff = <int>[];
 
-  Connected(
+  _Connected(
     this._connection, {
     VoidCallback? whenDisconnected,
   }) : _whenDisconnected = whenDisconnected {
@@ -107,6 +99,7 @@ class Connected implements BluetoothConnectionManagerState {
     ).onDone(_whenDisconnected);
   }
 
+  @override
   RRC get rrc => DelegateRRC(
         // input (passed to DelegateRRC.getLine())
         ({required Duration timeout}) async {
@@ -145,13 +138,14 @@ class Connected implements BluetoothConnectionManagerState {
         () => _buff.isEmpty,
       );
 
+  @override
   Future<void> close() => _connection.close();
 }
 
-class Connecting implements BluetoothConnectionManagerState {
+class _Connecting extends Connecting {
   final _completer = Completer<BluetoothConnection>();
 
-  Connecting(Future<BluetoothConnection> futureConnection) {
+  _Connecting(Future<BluetoothConnection> futureConnection) {
     Future(() async {
       try {
         final conn = await futureConnection;
@@ -169,15 +163,12 @@ class Connecting implements BluetoothConnectionManagerState {
   }
 
   // in case of error returns one of CancelledConnection/FailedToConnect
+  @override
   Future<void> get futureConnection => _completer.future;
 
+  @override
   void cancel() {
     assert(!_completer.isCompleted);
     _completer.completeError(CancelledConnection());
   }
-}
-
-class Disconnected implements BluetoothConnectionManagerState {
-  final DisconnectionReason reason;
-  Disconnected(this.reason);
 }
