@@ -5,8 +5,6 @@ import 'package:watermelon_glasses/controllers/connection_page_controller.dart';
 import 'package:watermelon_glasses/views/bluetooth_page/connection_page.dart';
 import 'package:watermelon_glasses/views/bluetooth_page/discovery_page.dart';
 
-// TODO: use another device
-
 /// controls switches between ConnectionPage and DiscoveryPage
 class BluetoothPageController extends GetxController {
   final _page = Rxn<Widget>();
