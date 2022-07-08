@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:watermelon_glasses/abstracts/watermelon.dart';
 import 'package:watermelon_glasses/datatypes/time.dart';
 import 'package:watermelon_glasses/datatypes/time_interval.dart';
-import 'package:watermelon_glasses/implementations/watermelons/watermelon_aleph_100.dart';
+import 'package:watermelon_glasses/implementations/watermelons/aleph_1xx/watermelon_aleph_100.dart';
 import 'package:watermelon_glasses/services/crashanalytics.dart';
 import 'package:watermelon_glasses/views/time_page/dialogs/add_interval.dart';
 

@@ -9,8 +9,6 @@ import 'package:watermelon_glasses/implementations/connection_manager/watermelon
 
 import 'connection_page_controller.dart';
 
-typedef FutureProducer = Future<void> Function();
-
 class ManualPageController extends GetxController {
   final _watermelon = Rxn<Watermelon>();
   final _connecting = false.obs;

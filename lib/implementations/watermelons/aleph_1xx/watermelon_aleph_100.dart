@@ -1,9 +1,6 @@
 import 'dart:async';
-import 'dart:collection';
-import 'dart:convert';
 
 import 'package:watermelon_glasses/abstracts/watermelons/watermelon_aleph_1xx.dart';
-import 'package:watermelon_glasses/datatypes/task.dart';
 import 'package:watermelon_glasses/datatypes/time.dart';
 import 'package:watermelon_glasses/datatypes/time_interval.dart';
 import 'package:watermelon_glasses/datatypes/time_pick.dart';
@@ -11,11 +8,6 @@ import 'package:watermelon_glasses/datatypes/time_pick.dart';
 // -> internal exceptions
 
 class Advance {}
-
-class BufferNotEmptyError extends Error {
-  final String drained;
-  BufferNotEmptyError(this.drained);
-}
 
 // -> external exceptions
 
@@ -27,6 +19,8 @@ class IntervalIntersection extends Error {}
 
 class InvalidChannelIndex extends Error {}
 
+// -> implementation
+
 class WatermelonAleph100 extends WatermelonAleph1xx {
   @override
   int get middleVersion => 0;
@@ -34,44 +28,18 @@ class WatermelonAleph100 extends WatermelonAleph1xx {
   @override
   int get minorVersion => 0;
 
-  bool? _isManualMode = false;
-  TimePick? _deviceTimePick;
+  /// must set internally
+  bool? manualModeFlag = false;
+
+  /// must set internally
+  TimePick? deviceTimePick;
 
   Future<Time>? _deviceTimeFuture;
   List<List<TimeInterval>>? _channels;
 
   Future<List<List<TimeInterval>>>? _channelsFuture;
-  Queue<Task>? _actions = Queue<Task>();
 
-  WatermelonAleph100(super.connection) {
-    // queue processor
-    Future(
-      () async {
-        while (_actions != null) {
-          // pick task
-          while (_actions!.isEmpty) {
-            await Future.delayed(const Duration(milliseconds: 10));
-            if (_actions == null) return;
-          }
-          Task nextTask = _actions!.first;
-          _actions!.removeFirst();
-
-          // do task
-          try {
-            if (!connection.isBufferEmpty) {
-              throw BufferNotEmptyError(
-                ascii.decode(connection.drainBuff()),
-              );
-            }
-            final res = await nextTask.f();
-            nextTask.c.complete(res);
-          } catch (e) {
-            nextTask.c.completeError(e);
-          }
-        }
-      },
-    );
-  }
+  WatermelonAleph100(super.connection) : super();
 
   @override
   Future<void> initialize() async {
@@ -88,7 +56,7 @@ class WatermelonAleph100 extends WatermelonAleph1xx {
   bool get canGetImmediateChannels => _channels != null;
 
   @override
-  bool get canGetImmediateDeviceTime => _deviceTimePick != null;
+  bool get canGetImmediateDeviceTime => deviceTimePick != null;
 
   @override
   Future<List<List<TimeInterval>>> get channels {
@@ -134,22 +102,22 @@ class WatermelonAleph100 extends WatermelonAleph1xx {
 
   @override
   Future<Time> get deviceTime {
-    assert(_deviceTimeFuture == null || _deviceTimePick == null);
+    assert(_deviceTimeFuture == null || deviceTimePick == null);
 
     // if in auto sync state
-    if (_deviceTimePick != null) return Future(() => immediateDeviceTime);
+    if (deviceTimePick != null) return Future(() => immediateDeviceTime);
 
     // create new future to fill _deviceTime
     _deviceTimeFuture ??= Future(
       () async {
         try {
           // get the actual time (slow)
-          if (_deviceTimePick != null) throw Advance();
+          if (deviceTimePick != null) throw Advance();
           final res = await getTime(); // may throw error
-          if (_deviceTimePick != null) throw Advance();
+          if (deviceTimePick != null) throw Advance();
 
           // goto auto sync state
-          _deviceTimePick = TimePick.makePick(res);
+          deviceTimePick = TimePick.makePick(res);
 
           // return to the first awaiters
           _deviceTimeFuture = null;
@@ -175,14 +143,14 @@ class WatermelonAleph100 extends WatermelonAleph1xx {
   List<List<TimeInterval>> get immediateChannels => _channels!;
 
   @override
-  Time get immediateDeviceTime => _deviceTimePick!.picked
-      .advance(_deviceTimePick!.elapsedSincePick.inSeconds);
+  Time get immediateDeviceTime => deviceTimePick!.picked
+      .advance(deviceTimePick!.elapsedSincePick.inSeconds);
 
   @override
-  bool? get isManualMode => _isManualMode;
+  bool? get isManualMode => manualModeFlag;
 
   @override
-  Future<void> closeChannel(int index) => _asyncSafe(
+  Future<void> closeChannel(int index) => asyncSafe(
         () async {
           assert(isManualMode!);
           await sendRaw("close ${index + 1}");
@@ -190,42 +158,23 @@ class WatermelonAleph100 extends WatermelonAleph1xx {
       );
 
   @override
-  Future<void> enterManualMode() => _asyncSafe(
+  Future<void> enterManualMode() => asyncSafe(
         () async {
           await sendRaw("manual mode");
-          _isManualMode = true;
+          manualModeFlag = true;
         },
       );
 
   @override
-  Future<void> exitManualMode() => _asyncSafe(
+  Future<void> exitManualMode() => asyncSafe(
         () async {
           await sendRaw("exit manual mode");
-          _isManualMode = false;
+          manualModeFlag = false;
         },
       );
 
-  /// Note: if you added too many actions and don't want to do them all,
-  /// you can call `flushActions()`,
-  /// it will complete all the pending with exception [Cancelled]
   @override
-  void flushActions() {
-    if (_actions != null) {
-      for (final action in _actions!) {
-        action.c.completeError(Cancelled());
-      }
-      _actions!.clear();
-    }
-  }
-
-  @override
-  void free() {
-    flushActions();
-    _actions = null;
-  }
-
-  @override
-  Future<List<List<TimeInterval>>> getSchedule() => _asyncSafe(
+  Future<List<List<TimeInterval>>> getSchedule() => asyncSafe(
         () async {
           assert(!isManualMode!);
           await sendRaw("get shedule");
@@ -253,7 +202,7 @@ class WatermelonAleph100 extends WatermelonAleph1xx {
       );
 
   @override
-  Future<Time> getTime() => _asyncSafe(
+  Future<Time> getTime() => asyncSafe(
         () async {
           assert(!isManualMode!);
           await sendRaw("get time");
@@ -266,7 +215,7 @@ class WatermelonAleph100 extends WatermelonAleph1xx {
       );
 
   @override
-  Future<void> openChannel(int index) => _asyncSafe(
+  Future<void> openChannel(int index) => asyncSafe(
         () async {
           assert(isManualMode!);
           await sendRaw("open ${index + 1}");
@@ -274,7 +223,7 @@ class WatermelonAleph100 extends WatermelonAleph1xx {
       );
 
   @override
-  Future<void> pull(TimeInterval interval, int channelIndex) => _asyncSafe(
+  Future<void> pull(TimeInterval interval, int channelIndex) => asyncSafe(
         () async {
           assert(!isManualMode!);
           final schedule = await channels;
@@ -300,7 +249,7 @@ class WatermelonAleph100 extends WatermelonAleph1xx {
       );
 
   @override
-  Future<void> put(TimeInterval interval, int channelIndex) => _asyncSafe(
+  Future<void> put(TimeInterval interval, int channelIndex) => asyncSafe(
         () async {
           assert(!isManualMode!);
           final schedule = await channels;
@@ -320,12 +269,10 @@ class WatermelonAleph100 extends WatermelonAleph1xx {
             throw ChannelScheduleOverflow();
           }
 
-          int? i = _findPutIndex(interval, intervals);
+          int? i = findPutIndex(interval, intervals);
           if (i == null) {
             throw IntervalIntersection();
           }
-
-          // TODO: too many channels working at the same time check (next versions of watermelon)
 
           await sendRaw('put $interval to ${channelIndex + 1}');
           intervals.insert(i, interval);
@@ -337,7 +284,7 @@ class WatermelonAleph100 extends WatermelonAleph1xx {
     if (!interval.isCorrect) return;
     int channelIndex = 0;
     for (final channelSchedule in immediateChannels) {
-      if (_findPutIndex(interval, channelSchedule) != null) {
+      if (findPutIndex(interval, channelSchedule) != null) {
         yield channelIndex;
       }
       channelIndex++;
@@ -345,24 +292,16 @@ class WatermelonAleph100 extends WatermelonAleph1xx {
   }
 
   @override
-  Future<void> setTime(Time time) => _asyncSafe(
+  Future<void> setTime(Time time) => asyncSafe(
         () async {
           assert(!isManualMode!);
           await sendRaw(
               "set time to ${time.hour}:${time.minute}:${time.second}");
-          _deviceTimePick = TimePick.makePick(time);
+          deviceTimePick = TimePick.makePick(time);
         },
       );
 
-  /// internal protector
-  /// methods protected by him cannot be invoked in parallel
-  Future<T> _asyncSafe<T>(FutureProducer<T> f) {
-    final completer = Completer<T>();
-    _actions!.add(Task<T>(f, completer));
-    return completer.future;
-  }
-
-  int? _findPutIndex(TimeInterval interval, List<TimeInterval> intervals) {
+  int? findPutIndex(TimeInterval interval, List<TimeInterval> intervals) {
     int i = 0;
     for (i = 0; i != intervals.length; i++) {
       if (intervals[i] > interval) break;

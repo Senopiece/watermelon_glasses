@@ -30,6 +30,9 @@ class Disconnected implements ConnectionManagerState {
 class DisconnectionReason extends Error {
   final dynamic internalReason;
   DisconnectionReason(this.internalReason);
+  // TODO: make it via factory,
+  // so if internalReason is DisconnectionReason itself,
+  // return it, no need to nest it down
 }
 
 class FailedToConnect extends DisconnectionReason {
