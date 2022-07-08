@@ -29,8 +29,10 @@ class Watermelon {
   void free() => throw UnimplementedError();
 
   /// must use internally
-  Future<String> getRaw() async {
-    return ascii.decode(await connection.getLine());
+  Future<String> getRaw({
+    Duration timeout = const Duration(seconds: 1),
+  }) async {
+    return ascii.decode(await connection.getLine(timeout: timeout));
   }
 
   /// must use internally

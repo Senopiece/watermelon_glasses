@@ -198,7 +198,10 @@ class WatermelonAleph111 extends WatermelonAleph1xx {
         () async {
           assert(!isManualMode!);
           await sendRaw("get schedule");
-          final lines = (await getRaw()).split(';');
+          final lines = (await getRaw(
+            timeout: const Duration(seconds: 3),
+          ))
+              .split(';');
 
           final res = <List<TimeInterval>>[];
           for (String line in lines) {
