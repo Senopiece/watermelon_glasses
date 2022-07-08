@@ -1,11 +1,24 @@
+import 'dart:convert';
+
 import 'package:watermelon_glasses/abstracts/watermelon.dart';
+import 'package:watermelon_glasses/datatypes/task.dart';
 import 'package:watermelon_glasses/datatypes/time.dart';
 import 'package:watermelon_glasses/datatypes/time_interval.dart';
+import 'package:watermelon_glasses/helpers/tasks_queue_mixin.dart';
+
+class BufferNotEmptyError extends Error {
+  final String drained;
+  BufferNotEmptyError(this.drained);
+  @override
+  String toString() => '[BufferNotEmptyError], remaining: $drained';
+}
 
 /// wrapper over RRC to support watermelon commands,
 /// see https://github.com/Senopiece/watermelon/blob/217028deeeb6f91774c44bc090ddcc1d0e1a113e/README.md
-class WatermelonAleph1xx extends Watermelon {
-  WatermelonAleph1xx(super.connection);
+class WatermelonAleph1xx extends Watermelon with SingleTasksQueueMixin {
+  WatermelonAleph1xx(super.connection) {
+    initTasksQueue();
+  }
 
   bool get canGetImmediateChannels => throw UnimplementedError();
   bool get canGetImmediateDeviceTime => throw UnimplementedError();
@@ -79,8 +92,6 @@ class WatermelonAleph1xx extends Watermelon {
 
   Future<void> exitManualMode() => throw UnimplementedError();
 
-  void flushActions() => throw UnimplementedError();
-
   /// return example:
   /// [
   ///   [11:00 - 12:00, 14:00 - 15:00]
@@ -110,4 +121,22 @@ class WatermelonAleph1xx extends Watermelon {
   }
 
   Future<void> setTime(Time time) => throw UnimplementedError();
+
+  @override
+  void free() => freeTasksQueue();
+
+  @override
+  Future<T> asyncSafe<T>(FutureProducer<T> f) {
+    return super.asyncSafe(
+      () {
+        // add this header for any function passed to [asyncSafe]
+        if (!connection.isBufferEmpty) {
+          throw BufferNotEmptyError(
+            ascii.decode(connection.drainBuff()),
+          );
+        }
+        return f();
+      },
+    );
+  }
 }

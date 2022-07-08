@@ -15,12 +15,12 @@ class AddButton extends StatelessWidget {
       width: 200,
       height: 70,
       child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+            primary: const Color.fromARGB(255, 155, 219, 157)),
         onPressed: onTap,
         child: const Text(
           '+',
-          style: TextStyle(
-            fontSize: 30,
-          ),
+          style: TextStyle(fontSize: 30, color: Colors.black),
         ),
       ),
     );

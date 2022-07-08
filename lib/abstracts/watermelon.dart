@@ -3,9 +3,15 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:watermelon_glasses/abstracts/rrc.dart';
-import 'package:watermelon_glasses/implementations/watermelons/watermelon_aleph_100.dart';
+import 'package:watermelon_glasses/implementations/watermelons/aleph_1xx/watermelon_aleph_100.dart';
+import 'package:watermelon_glasses/implementations/watermelons/aleph_1xx/watermelon_aleph_111.dart';
 
-class UnknownWatermelonVersion extends Error {}
+class UnknownWatermelonVersion extends Error {
+  final String version;
+  UnknownWatermelonVersion(this.version);
+  @override
+  String toString() => '[UnknownWatermelonVersion] $version';
+}
 
 /// wrapper over RRC to support watermelon commands
 class Watermelon {
@@ -23,8 +29,10 @@ class Watermelon {
   void free() => throw UnimplementedError();
 
   /// must use internally
-  Future<String> getRaw() async {
-    return ascii.decode(await connection.getLine());
+  Future<String> getRaw({
+    Duration timeout = const Duration(seconds: 1),
+  }) async {
+    return ascii.decode(await connection.getLine(timeout: timeout));
   }
 
   /// must use internally
@@ -49,16 +57,22 @@ class Watermelon {
     await sendRaw('get version');
     late final String versionString;
     try {
-      versionString = await getRaw();
+      versionString = (await getRaw()).trimRight();
     } on TimeoutException {
       versionString = 'aleph-1.0.0';
+    }
+
+    if (version == versionString) {
+      return this;
     }
 
     switch (versionString) {
       case 'aleph-1.0.0':
         return WatermelonAleph100(connection);
+      case 'aleph-1.1.1':
+        return WatermelonAleph111(connection);
       default:
-        throw UnknownWatermelonVersion();
+        throw UnknownWatermelonVersion(versionString);
     }
   }
 }

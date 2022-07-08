@@ -47,6 +47,12 @@ class _AddIntervalDialogState extends State<AddIntervalDialog> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _applyMatchesFiler();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Center(
       child: Card(
@@ -150,13 +156,16 @@ class _AddIntervalDialogState extends State<AddIntervalDialog> {
                       height: 50,
                       width: 100,
                       child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            primary: const Color.fromARGB(255, 155, 219, 157)),
                         onPressed: selected.isNotEmpty
                             ? () => widget.submit(
                                   TimeInterval(data.startTime, data.endTime),
                                   selected,
                                 )
                             : null,
-                        child: Text('submit'.tr),
+                        child: Text('submit'.tr,
+                            style: const TextStyle(color: Colors.black)),
                       ),
                     ),
                     const SizedBox(width: 30),
@@ -164,8 +173,13 @@ class _AddIntervalDialogState extends State<AddIntervalDialog> {
                       height: 50,
                       width: 100,
                       child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            primary: const Color.fromARGB(255, 155, 219, 157)),
                         onPressed: widget.onCancel,
-                        child: Text('cancel'.tr),
+                        child: Text(
+                          'cancel'.tr,
+                          style: const TextStyle(color: Colors.black),
+                        ),
                       ),
                     ),
                   ],
