@@ -8,7 +8,7 @@ class BluetoothDisabled extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.center,
-      color: const Color.fromARGB(255, 241, 237, 237),
+      // color: const Color.fromARGB(255, 241, 237, 237),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
