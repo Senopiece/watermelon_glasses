@@ -33,6 +33,8 @@ class DisconnectionReason extends Error {
   // TODO: make it via factory,
   // so if internalReason is DisconnectionReason itself,
   // return it, no need to nest it down
+  @override
+  String toString() => '[DisconnectionReason] $internalReason';
 }
 
 class FailedToConnect extends DisconnectionReason {

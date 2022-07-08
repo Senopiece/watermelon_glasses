@@ -50,7 +50,7 @@ class Watermelon {
     await sendRaw('get version');
     late final String versionString;
     try {
-      versionString = await getRaw();
+      versionString = (await getRaw()).trimRight();
     } on TimeoutException {
       versionString = 'aleph-1.0.0';
     }

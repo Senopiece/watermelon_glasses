@@ -5,6 +5,7 @@ import 'package:watermelon_glasses/abstracts/watermelon.dart';
 import 'package:watermelon_glasses/datatypes/time.dart';
 import 'package:watermelon_glasses/datatypes/time_interval.dart';
 import 'package:watermelon_glasses/implementations/watermelons/aleph_1xx/watermelon_aleph_100.dart';
+import 'package:watermelon_glasses/implementations/watermelons/aleph_1xx/watermelon_aleph_111.dart';
 import 'package:watermelon_glasses/services/crashanalytics.dart';
 import 'package:watermelon_glasses/views/time_page/dialogs/add_interval.dart';
 
@@ -43,56 +44,99 @@ class ScheduleController extends GetxController {
   }
 
   void addTimeInterval() {
-    if (watermelon is WatermelonAleph100) {
-      final wmelon = watermelon as WatermelonAleph100;
-
-      Get.dialog(
-        AddIntervalDialog(
-          matchesFilter: (TimeInterval interval) sync* {
-            for (final int channelIndex
-                in wmelon.putDoesNotIntersect(interval)) {
-              if (channels[channelIndex].length != channelCapacity) {
-                yield channelIndex;
+    // at this point 1.0.0 and 1.1.1 are different
+    switch (watermelon.runtimeType) {
+      case WatermelonAleph111:
+        final wmelon = watermelon as WatermelonAleph111;
+        Get.dialog(
+          AddIntervalDialog(
+            matchesFilter: (TimeInterval interval) sync* {
+              for (final int channelIndex
+                  in wmelon.putDoesNotIntersect(interval)) {
+                if (channels[channelIndex].length != channelCapacity) {
+                  yield channelIndex;
+                }
               }
-            }
-          },
-          submit: (TimeInterval interval, Iterable<int> selected) async {
-            // assert(selected is a subset of matchesFilter(interval))
-            Get.back();
-            for (final channelIndex in selected) {
-              await _safeAction(
-                wmelon.put(interval, channelIndex),
-              );
-            }
-          },
-          onCancel: () => Get.back(),
-          initialData: TimeInterval.parse('12:00 - 12:59'),
-          timeSync: (TimeInterval prev, TimeInterval next) {
-            Time startTime = next.startTime;
-            Time endTime = next.endTime;
-
-            if (!(next.endTime > next.startTime)) {
-              if (prev.endTime > next.startTime) {
-                endTime = prev.endTime;
-              } else {
-                endTime = startTime.advance(60);
+            },
+            submit: (TimeInterval interval, Iterable<int> selected) async {
+              // assert(selected is a subset of matchesFilter(interval))
+              Get.back();
+              for (final channelIndex in selected) {
+                await _safeAction(
+                  wmelon.put(interval, channelIndex),
+                );
               }
-            }
+            },
+            onCancel: () => Get.back(),
+            initialData:
+                TimeInterval(Time.fromHMS(12, 0, 0), Time.fromHMS(12, 59, 59)),
+            timeSync: (TimeInterval prev, TimeInterval next) {
+              Time startTime = next.startTime;
+              Time endTime = next.endTime;
 
-            return TimeInterval(startTime, endTime);
-          },
-        ),
-      );
-    } else {
-      Fluttertoast.cancel();
-      Fluttertoast.showToast(
-        msg: "Unsupported hardware version".tr,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.0,
-      );
+              if (!(next.endTime > next.startTime)) {
+                if (prev.endTime > next.startTime) {
+                  endTime = prev.endTime;
+                } else {
+                  endTime = startTime.advance(59);
+                }
+              }
+
+              return TimeInterval(startTime, endTime);
+            },
+          ),
+        );
+        break;
+      case WatermelonAleph100:
+        final wmelon = watermelon as WatermelonAleph100;
+        Get.dialog(
+          AddIntervalDialog(
+            matchesFilter: (TimeInterval interval) sync* {
+              for (final int channelIndex
+                  in wmelon.putDoesNotIntersect(interval)) {
+                if (channels[channelIndex].length != channelCapacity) {
+                  yield channelIndex;
+                }
+              }
+            },
+            submit: (TimeInterval interval, Iterable<int> selected) async {
+              // assert(selected is a subset of matchesFilter(interval))
+              Get.back();
+              for (final channelIndex in selected) {
+                await _safeAction(
+                  wmelon.put(interval, channelIndex),
+                );
+              }
+            },
+            onCancel: () => Get.back(),
+            initialData: TimeInterval.parse('12:00 - 12:59'),
+            timeSync: (TimeInterval prev, TimeInterval next) {
+              Time startTime = next.startTime;
+              Time endTime = next.endTime;
+
+              if (!(next.endTime > next.startTime)) {
+                if (prev.endTime > next.startTime) {
+                  endTime = prev.endTime;
+                } else {
+                  endTime = startTime.advance(60);
+                }
+              }
+
+              return TimeInterval(startTime, endTime);
+            },
+          ),
+        );
+        break;
+      default:
+        Fluttertoast.cancel();
+        Fluttertoast.showToast(
+          msg: "Unsupported hardware version".tr,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
     }
   }
 

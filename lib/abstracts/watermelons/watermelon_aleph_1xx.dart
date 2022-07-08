@@ -9,6 +9,8 @@ import 'package:watermelon_glasses/helpers/tasks_queue_mixin.dart';
 class BufferNotEmptyError extends Error {
   final String drained;
   BufferNotEmptyError(this.drained);
+  @override
+  String toString() => '[BufferNotEmptyError], remaining: $drained';
 }
 
 /// wrapper over RRC to support watermelon commands,

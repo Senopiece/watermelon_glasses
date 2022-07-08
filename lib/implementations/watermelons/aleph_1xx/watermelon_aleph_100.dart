@@ -28,11 +28,8 @@ class WatermelonAleph100 extends WatermelonAleph1xx {
   @override
   int get minorVersion => 0;
 
-  /// must set internally
-  bool? manualModeFlag = false;
-
-  /// must set internally
-  TimePick? deviceTimePick;
+  bool? _manualModeFlag = false;
+  TimePick? _deviceTimePick;
 
   Future<Time>? _deviceTimeFuture;
   List<List<TimeInterval>>? _channels;
@@ -56,7 +53,7 @@ class WatermelonAleph100 extends WatermelonAleph1xx {
   bool get canGetImmediateChannels => _channels != null;
 
   @override
-  bool get canGetImmediateDeviceTime => deviceTimePick != null;
+  bool get canGetImmediateDeviceTime => _deviceTimePick != null;
 
   @override
   Future<List<List<TimeInterval>>> get channels {
@@ -102,22 +99,22 @@ class WatermelonAleph100 extends WatermelonAleph1xx {
 
   @override
   Future<Time> get deviceTime {
-    assert(_deviceTimeFuture == null || deviceTimePick == null);
+    assert(_deviceTimeFuture == null || _deviceTimePick == null);
 
     // if in auto sync state
-    if (deviceTimePick != null) return Future(() => immediateDeviceTime);
+    if (_deviceTimePick != null) return Future(() => immediateDeviceTime);
 
     // create new future to fill _deviceTime
     _deviceTimeFuture ??= Future(
       () async {
         try {
           // get the actual time (slow)
-          if (deviceTimePick != null) throw Advance();
+          if (_deviceTimePick != null) throw Advance();
           final res = await getTime(); // may throw error
-          if (deviceTimePick != null) throw Advance();
+          if (_deviceTimePick != null) throw Advance();
 
           // goto auto sync state
-          deviceTimePick = TimePick.makePick(res);
+          _deviceTimePick = TimePick.makePick(res);
 
           // return to the first awaiters
           _deviceTimeFuture = null;
@@ -143,11 +140,11 @@ class WatermelonAleph100 extends WatermelonAleph1xx {
   List<List<TimeInterval>> get immediateChannels => _channels!;
 
   @override
-  Time get immediateDeviceTime => deviceTimePick!.picked
-      .advance(deviceTimePick!.elapsedSincePick.inSeconds);
+  Time get immediateDeviceTime => _deviceTimePick!.picked
+      .advance(_deviceTimePick!.elapsedSincePick.inSeconds);
 
   @override
-  bool? get isManualMode => manualModeFlag;
+  bool? get isManualMode => _manualModeFlag;
 
   @override
   Future<void> closeChannel(int index) => asyncSafe(
@@ -161,7 +158,7 @@ class WatermelonAleph100 extends WatermelonAleph1xx {
   Future<void> enterManualMode() => asyncSafe(
         () async {
           await sendRaw("manual mode");
-          manualModeFlag = true;
+          _manualModeFlag = true;
         },
       );
 
@@ -169,7 +166,7 @@ class WatermelonAleph100 extends WatermelonAleph1xx {
   Future<void> exitManualMode() => asyncSafe(
         () async {
           await sendRaw("exit manual mode");
-          manualModeFlag = false;
+          _manualModeFlag = false;
         },
       );
 
@@ -297,7 +294,7 @@ class WatermelonAleph100 extends WatermelonAleph1xx {
           assert(!isManualMode!);
           await sendRaw(
               "set time to ${time.hour}:${time.minute}:${time.second}");
-          deviceTimePick = TimePick.makePick(time);
+          _deviceTimePick = TimePick.makePick(time);
         },
       );
 
