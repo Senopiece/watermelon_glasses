@@ -15,7 +15,10 @@ class SettingsPageRoot extends GetView<SettingsPageController> {
             sections: [
               SettingsSection(
                 title: Text('Common'.tr,
-                style: TextStyle(color: controller.getIsDarkTheme(0) ? Colors.black : Colors.white)),
+                    style: TextStyle(
+                        color: controller.getIsDarkTheme(0)
+                            ? Colors.black
+                            : Colors.white)),
                 tiles: <SettingsTile>[
                   SettingsTile.navigation(
                     leading: const Icon(Icons.language),

@@ -56,14 +56,11 @@ class ConnectionPage extends GetView<ConnectionPageController> {
           Text(label),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              primary: const Color.fromARGB(255, 155, 219, 157)
-            ),
+                primary: const Color.fromARGB(255, 155, 219, 157)),
             onPressed: controller.gotoDiscoverySubPage,
             child: (controller.connector!.currentState is Connecting)
-                ? Text('cancel'.tr,
-            style: const TextStyle(color: Colors.green))
-                : Text('close'.tr,
-                style: const TextStyle(color: Colors.black)),
+                ? Text('cancel'.tr, style: const TextStyle(color: Colors.green))
+                : Text('close'.tr, style: const TextStyle(color: Colors.black)),
           )
         ];
 
@@ -71,11 +68,12 @@ class ConnectionPage extends GetView<ConnectionPageController> {
           content.add(
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                  primary: const Color.fromARGB(255, 155, 219, 157)
-              ),
+                  primary: const Color.fromARGB(255, 155, 219, 157)),
               onPressed: controller.reconnect,
-              child: Text('reconnect'.tr,
-              style: const TextStyle(color: Colors.black),),
+              child: Text(
+                'reconnect'.tr,
+                style: const TextStyle(color: Colors.black),
+              ),
             ),
           );
         }
