@@ -6,7 +6,12 @@ import 'package:watermelon_glasses/abstracts/rrc.dart';
 import 'package:watermelon_glasses/implementations/watermelons/aleph_1xx/watermelon_aleph_100.dart';
 import 'package:watermelon_glasses/implementations/watermelons/aleph_1xx/watermelon_aleph_111.dart';
 
-class UnknownWatermelonVersion extends Error {}
+class UnknownWatermelonVersion extends Error {
+  final String version;
+  UnknownWatermelonVersion(this.version);
+  @override
+  String toString() => '[UnknownWatermelonVersion] $version';
+}
 
 /// wrapper over RRC to support watermelon commands
 class Watermelon {
@@ -65,7 +70,7 @@ class Watermelon {
       case 'aleph-1.1.1':
         return WatermelonAleph111(connection);
       default:
-        throw UnknownWatermelonVersion();
+        throw UnknownWatermelonVersion(versionString);
     }
   }
 }
