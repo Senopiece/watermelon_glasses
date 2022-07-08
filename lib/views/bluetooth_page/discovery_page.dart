@@ -22,7 +22,12 @@ class DiscoveryPage extends GetView<DiscoveryPageController> {
               )
             : RefreshIndicator(
                 onRefresh: () async => controller.startDiscovery(),
-                child: Stack(children: [ListView(), const BluetoothDisabled()]),
+                child: ListView(
+                  children: [
+                    SizedBox(height: (MediaQuery.of(context).size.height) / 3),
+                    const BluetoothDisabled(),
+                  ],
+                ),
               )),
       ),
     );
