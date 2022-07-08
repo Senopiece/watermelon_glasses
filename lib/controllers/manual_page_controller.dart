@@ -23,12 +23,13 @@ class ManualPageController extends GetxController {
   get duckWatermelon => _watermelon.value;
   set watermelon(Watermelon? val) => _watermelon.value = val;
 
-  Future<void> switchChannel(int index) async {
+  void switchChannel(int index) {
     try {
+      duckWatermelon.flushActions();
       if (channels[index]) {
-        await duckWatermelon.closeChannel(index);
+        duckWatermelon.closeChannel(index);
       } else {
-        await duckWatermelon.openChannel(index);
+        duckWatermelon.openChannel(index);
       }
       channels[index] = !channels[index];
     } catch (e) {
