@@ -7,4 +7,15 @@ class RRC {
       throw UnimplementedError();
   Uint8List drainBuff() => throw UnimplementedError();
   bool get isBufferEmpty => throw UnimplementedError();
+
+  // TODO: this is a combination of both send and getLine,
+  // but also it should check a assert:
+  // if (!connection.isBufferEmpty) {
+  //   throw BufferNotEmptyError(
+  //     ascii.decode(connection.drainBuff()),
+  //   );
+  // }
+  Future<Uint8List> ask(Uint8List msg,
+          {Duration timeout = const Duration(seconds: 1)}) =>
+      throw UnimplementedError();
 }

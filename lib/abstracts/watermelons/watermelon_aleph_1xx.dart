@@ -130,6 +130,7 @@ class WatermelonAleph1xx extends Watermelon with SingleTasksQueueMixin {
     return super.asyncSafe(
       () {
         // add this header for any function passed to [asyncSafe]
+        // TODO: migrate it to the RRC
         if (!connection.isBufferEmpty) {
           throw BufferNotEmptyError(
             ascii.decode(connection.drainBuff()),
